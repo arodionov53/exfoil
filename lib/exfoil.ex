@@ -4,8 +4,11 @@ defmodule Exfoil do
 
   For example, an ETS table named `tab1` containing key-value pairs `{:a, 1}` and `{:b, 2}`
   will be converted to a dynamically created module `Tab1` with functions:
-  - `Tab1.get(:a)` which returns `1`
-  - `Tab1.get(:b)` which returns `2`
+  - `Tab1.get(:a)` which returns `{:ok, 1}`
+  - `Tab1.get(:b)` which returns `{:ok, 2}`
+  - `Tab1.get(:missing)` which returns `{:error, :not_found}`
+  - `Tab1.get!(:a)` which returns `1`
+  - `Tab1.get!(:missing)` which raises a `KeyError`
 
   ## Additional Functionality
 
@@ -34,9 +37,15 @@ defmodule Exfoil do
       Exfoil.convert(:tab1)
 
       # Now you can use the generated module
-      Tab1.get(:a)  # => 1
-      Tab1.get(:b)  # => 2
-      Tab1.get(:c)  # => "hello"
+      Tab1.get(:a)   # => {:ok, 1}
+      Tab1.get(:b)   # => {:ok, 2}
+      Tab1.get(:c)   # => {:ok, "hello"}
+      Tab1.get(:d)   # => {:error, :not_found}
+
+      Tab1.get!(:a)  # => 1
+      Tab1.get!(:b)  # => 2
+      Tab1.get!(:c)  # => "hello"
+      Tab1.get!(:d)  # => raises KeyError
 
   """
   def convert(table_name, opts \\ []) when is_atom(table_name) do
@@ -69,7 +78,8 @@ defmodule Exfoil do
       :ets.insert(:tab1, {:key, "value"})
 
       module = Exfoil.convert!(:tab1)
-      module.get(:key)  # => "value"
+      module.get(:key)   # => {:ok, "value"}
+      module.get!(:key)  # => "value"
 
   """
   def convert!(table_name, opts \\ []) do
@@ -134,22 +144,38 @@ defmodule Exfoil do
   end
 
   defp generate_function_clauses(function_name, entries) do
-    # Generate a function clause for each entry
-    function_clauses = Enum.map(entries, fn {key, value} ->
+    # Generate function clauses for the safe version (returns {:ok, value} or {:error, reason})
+    safe_function_clauses = Enum.map(entries, fn {key, value} ->
       quote do
         def unquote(function_name)(unquote(key)) do
+          {:ok, unquote(Macro.escape(value))}
+        end
+      end
+    end)
+
+    # Generate function clauses for the bang version (returns value or raises)
+    bang_function_name = String.to_atom("#{function_name}!")
+    bang_function_clauses = Enum.map(entries, fn {key, value} ->
+      quote do
+        def unquote(bang_function_name)(unquote(key)) do
           unquote(Macro.escape(value))
         end
       end
     end)
 
-    # Add a catch-all clause that returns {:error, :not_found}
-    catch_all_clause = quote do
+    # Add catch-all clauses
+    safe_catch_all = quote do
       def unquote(function_name)(_key) do
         {:error, :not_found}
       end
     end
 
-    function_clauses ++ [catch_all_clause]
+    bang_catch_all = quote do
+      def unquote(bang_function_name)(key) do
+        raise KeyError, key: key, term: __MODULE__
+      end
+    end
+
+    safe_function_clauses ++ bang_function_clauses ++ [safe_catch_all, bang_catch_all]
   end
 end

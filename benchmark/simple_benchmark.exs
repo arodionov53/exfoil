@@ -61,16 +61,22 @@ IO.puts("Exfoil module: Stored in bytecode (minimal runtime memory)")
 
 # Test correctness
 ets_result = case :ets.lookup(:quick_test, test_key) do
-  [{^test_key, value}] -> value
+  [{^test_key, value}] -> {:ok, value}
   [] -> {:error, :not_found}
 end
 
 exfoil_result = apply(module_name, :get, [test_key])
+exfoil_bang_result = apply(module_name, :get!, [test_key])
 
 IO.puts("\nCorrectness check:")
 IO.puts("ETS result: #{inspect(ets_result)}")
 IO.puts("Exfoil result: #{inspect(exfoil_result)}")
-IO.puts("Results match: #{inspect(ets_result == exfoil_result)}")
+IO.puts("Exfoil bang result: #{inspect(exfoil_bang_result)}")
+IO.puts("Safe versions match: #{inspect(ets_result == exfoil_result)}")
+
+# Extract value from {:ok, value} for bang comparison
+{:ok, ets_value} = ets_result
+IO.puts("Bang version matches ETS value: #{inspect(ets_value == exfoil_bang_result)}")
 
 # Cleanup
 :ets.delete(:quick_test)

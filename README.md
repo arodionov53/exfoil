@@ -27,9 +27,14 @@ Exfoil is an Elixir library that converts ETS (Erlang Term Storage) table entrie
 # => {:ok, :Tab1}
 
 # Now you can call functions directly!
-:Tab1.get(:a)  # => 1
-:Tab1.get(:b)  # => 2
+:Tab1.get(:a)  # => {:ok, 1}
+:Tab1.get(:b)  # => {:ok, 2}
 :Tab1.get(:nonexistent)  # => {:error, :not_found}
+
+# Or use the bang version for direct access
+:Tab1.get!(:a)  # => 1
+:Tab1.get!(:b)  # => 2
+:Tab1.get!(:nonexistent)  # => raises KeyError
 
 # Helper functions
 :Tab1.keys()   # => [:a, :b]
@@ -50,9 +55,14 @@ data = %{name: "Alice", age: 30, city: "San Francisco"}
 # => {:ok, :Person}
 
 # Access data through function calls
-:Person.get(:name)  # => "Alice"
-:Person.get(:age)   # => 30
+:Person.get(:name)  # => {:ok, "Alice"}
+:Person.get(:age)   # => {:ok, 30}
 :Person.get(:nonexistent)  # => {:error, :not_found}
+
+# Or use the bang version for direct access
+:Person.get!(:name)  # => "Alice"
+:Person.get!(:age)   # => 30
+:Person.get!(:nonexistent)  # => raises KeyError
 
 # Helper functions
 :Person.keys()    # => [:name, :age, :city]
@@ -76,8 +86,12 @@ Exfoil handles all Elixir data types:
 
 {:ok, :ComplexTable} = Exfoil.convert(:complex_table)
 
-:ComplexTable.get(:string)  # => "hello"
-:ComplexTable.get(:map)     # => %{key: "value"}
+:ComplexTable.get(:string)  # => {:ok, "hello"}
+:ComplexTable.get(:map)     # => {:ok, %{key: "value"}}
+
+# Bang versions for direct access
+:ComplexTable.get!(:string)  # => "hello"
+:ComplexTable.get!(:map)     # => %{key: "value"}
 ```
 
 ### Custom Configuration
@@ -93,7 +107,8 @@ You can customize the generated module name and function name:
                                   module_name: :MyConfig,
                                   function_name: :lookup)
 
-:MyConfig.lookup(:api_key)  # => "secret"
+:MyConfig.lookup(:api_key)   # => {:ok, "secret"}
+:MyConfig.lookup!(:api_key)  # => "secret"
 ```
 
 ### Error Handling
@@ -119,8 +134,12 @@ alias Exfoil.Maps
 user_data = %{username: "bob", role: :admin, active: true}
 {:ok, :UserModule} = Maps.convert(user_data, :UserModule)
 
-:UserModule.get(:username)  # => "bob"
-:UserModule.get(:role)      # => :admin
+:UserModule.get(:username)  # => {:ok, "bob"}
+:UserModule.get(:role)      # => {:ok, :admin}
+
+# Bang versions for direct access
+:UserModule.get!(:username)  # => "bob"
+:UserModule.get!(:role)      # => :admin
 ```
 
 ### Auto-Generated Module Names
@@ -130,7 +149,8 @@ user_data = %{username: "bob", role: :admin, active: true}
 config = %{env: :dev, debug: true}
 {:ok, module_name} = Maps.convert_with_auto_name(config)
 
-module_name.get(:env)  # => :dev
+module_name.get(:env)   # => {:ok, :dev}
+module_name.get!(:env)  # => :dev
 ```
 
 ### Complex Data Types in Maps
@@ -144,8 +164,12 @@ complex_data = %{
 
 {:ok, :AppConfig} = Maps.convert(complex_data, :AppConfig)
 
-:AppConfig.get(:config)    # => %{database: "postgres", port: 5432}
-:AppConfig.get(:features)  # => [:auth, :logging, :metrics]
+:AppConfig.get(:config)    # => {:ok, %{database: "postgres", port: 5432}}
+:AppConfig.get(:features)  # => {:ok, [:auth, :logging, :metrics]}
+
+# Bang versions for direct access
+:AppConfig.get!(:config)    # => %{database: "postgres", port: 5432}
+:AppConfig.get!(:features)  # => [:auth, :logging, :metrics]
 ```
 
 ### Mixed Key Types
@@ -161,9 +185,14 @@ mixed_keys = %{
 
 {:ok, :MixedKeys} = Maps.convert(mixed_keys, :MixedKeys)
 
-:MixedKeys.get(:atom_key)     # => "atom value"
-:MixedKeys.get("string_key")  # => "string value"
-:MixedKeys.get(1)             # => "number key"
+:MixedKeys.get(:atom_key)     # => {:ok, "atom value"}
+:MixedKeys.get("string_key")  # => {:ok, "string value"}
+:MixedKeys.get(1)             # => {:ok, "number key"}
+
+# Bang versions for direct access
+:MixedKeys.get!(:atom_key)     # => "atom value"
+:MixedKeys.get!("string_key")  # => "string value"
+:MixedKeys.get!(1)             # => "number key"
 ```
 
 ### Map-Specific Helper Functions
@@ -199,7 +228,8 @@ Same as `convert/2` but raises an exception on error.
 
 Each generated module includes:
 
-- `get/1` (or custom function name) - Retrieve value by key
+- `get/1` (or custom function name) - Retrieve value by key, returns `{:ok, value}` or `{:error, :not_found}`
+- `get!/1` (or custom function name with `!`) - Retrieve value by key directly, returns `value` or raises `KeyError`
 - `keys/0` - List all available keys
 - `all/0` - Get all key-value pairs
 - `count/0` - Count of entries

@@ -145,11 +145,14 @@ Benchee.run(
     "Exfoil single call" => fn ->
       apply(single_module, :get, [test_key])
     end,
-    "ETS lookup (get value only)" => fn ->
+    "ETS lookup (safe format)" => fn ->
       case :ets.lookup(single_table, test_key) do
-        [{^test_key, value}] -> value
+        [{^test_key, value}] -> {:ok, value}
         [] -> {:error, :not_found}
       end
+    end,
+    "Exfoil bang call" => fn ->
+      apply(single_module, :get!, [test_key])
     end
   },
   time: 5,
