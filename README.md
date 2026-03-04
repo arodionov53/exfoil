@@ -33,7 +33,8 @@ Exfoil is an Elixir library that converts ETS (Erlang Term Storage) table entrie
 # Now you can call functions directly!
 Tab1.get(:a)  # => {:ok, 1}
 Tab1.get(:b)  # => {:ok, 2}
-Tab1.get(:nonexistent)  # => {:error, :not_found}
+Tab1.get(:nonexistent)  # => nil
+Tab1.get(:nonexistent, :default)  # => :default
 
 # Or use the bang version for direct access
 Tab1.get!(:a)  # => 1
@@ -63,7 +64,8 @@ data = %{name: "Alice", age: 30, city: "San Francisco"}
 # Access data through function calls
 Person.get(:name)  # => {:ok, "Alice"}
 Person.get(:age)   # => {:ok, 30}
-Person.get(:nonexistent)  # => {:error, :not_found}
+Person.get(:nonexistent)  # => nil
+Person.get(:nonexistent, "not found")  # => "not found"
 
 # Or use the bang version for direct access
 Person.get!(:name)  # => "Alice"
@@ -288,7 +290,7 @@ Same as `convert/2` but raises an exception on error. Requires named ETS tables 
 
 Each generated module includes:
 
-- `get/1` (or custom function name) - Retrieve value by key, returns `{:ok, value}` or `{:error, :not_found}`
+- `get/2` (or custom function name) - Retrieve value by key with optional default. Returns `{:ok, value}` for existing keys or the default value (defaults to `nil`) for missing keys. Similar to `Map.get/3`
 - `get!/1` (or custom function name with `!`) - Retrieve value by key directly, returns `value` or raises `KeyError`
 - `keys/0` - List all available keys
 - `all/0` - Get all key-value pairs

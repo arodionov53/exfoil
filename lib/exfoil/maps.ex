@@ -6,7 +6,8 @@ defmodule Exfoil.Maps do
   with functions:
   - `YourModule.get(:a)` which returns `{:ok, 1}`
   - `YourModule.get(:b)` which returns `{:ok, 2}`
-  - `YourModule.get(:missing)` which returns `{:error, :not_found}`
+  - `YourModule.get(:missing)` which returns `nil`
+  - `YourModule.get(:missing, :default)` which returns `:default`
   - `YourModule.get!(:a)` which returns `1`
   - `YourModule.get!(:missing)` which raises a `KeyError`
   """
@@ -33,7 +34,8 @@ defmodule Exfoil.Maps do
       MyData.get(:a)   # => {:ok, 1}
       MyData.get(:b)   # => {:ok, 2}
       MyData.get(:c)   # => {:ok, "hello"}
-      MyData.get(:d)   # => {:error, :not_found}
+      MyData.get(:d)   # => nil
+      MyData.get(:d, :default)   # => :default
 
       MyData.get!(:a)  # => 1
       MyData.get!(:b)  # => 2
@@ -208,10 +210,15 @@ defmodule Exfoil.Maps do
   end
 
   defp generate_function_clauses(function_name, entries) do
-    # Generate function clauses for the safe version (returns {:ok, value} or {:error, reason})
+    # Generate header clause with default argument
+    safe_header = quote do
+      def unquote(function_name)(key, default \\ nil)
+    end
+
+    # Generate function clauses for the safe version (without default declaration)
     safe_function_clauses = Enum.map(entries, fn {key, value} ->
       quote do
-        def unquote(function_name)(unquote(key)) do
+        def unquote(function_name)(unquote(key), _default) do
           {:ok, unquote(Macro.escape(value))}
         end
       end
@@ -229,8 +236,8 @@ defmodule Exfoil.Maps do
 
     # Add catch-all clauses
     safe_catch_all = quote do
-      def unquote(function_name)(_key) do
-        {:error, :not_found}
+      def unquote(function_name)(_key, default) do
+        default
       end
     end
 
@@ -240,6 +247,6 @@ defmodule Exfoil.Maps do
       end
     end
 
-    safe_function_clauses ++ bang_function_clauses ++ [safe_catch_all, bang_catch_all]
+    [safe_header] ++ safe_function_clauses ++ bang_function_clauses ++ [safe_catch_all, bang_catch_all]
   end
 end

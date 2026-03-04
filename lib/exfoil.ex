@@ -6,7 +6,8 @@ defmodule Exfoil do
   will be converted to a dynamically created module `Tab1` with functions:
   - `Tab1.get(:a)` which returns `{:ok, 1}`
   - `Tab1.get(:b)` which returns `{:ok, 2}`
-  - `Tab1.get(:missing)` which returns `{:error, :not_found}`
+  - `Tab1.get(:missing)` which returns `nil`
+  - `Tab1.get(:missing, :default)` which returns `:default`
   - `Tab1.get!(:a)` which returns `1`
   - `Tab1.get!(:missing)` which raises a `KeyError`
 
@@ -40,7 +41,8 @@ defmodule Exfoil do
       Tab1.get(:a)   # => {:ok, 1}
       Tab1.get(:b)   # => {:ok, 2}
       Tab1.get(:c)   # => {:ok, "hello"}
-      Tab1.get(:d)   # => {:error, :not_found}
+      Tab1.get(:d)   # => nil
+      Tab1.get(:d, :default)   # => :default
 
       Tab1.get!(:a)  # => 1
       Tab1.get!(:b)  # => 2
@@ -184,10 +186,15 @@ defmodule Exfoil do
   end
 
   defp generate_function_clauses(function_name, entries) do
-    # Generate function clauses for the safe version (returns {:ok, value} or {:error, reason})
+    # Generate header clause with default argument
+    safe_header = quote do
+      def unquote(function_name)(key, default \\ nil)
+    end
+
+    # Generate function clauses for the safe version (without default declaration)
     safe_function_clauses = Enum.map(entries, fn {key, value} ->
       quote do
-        def unquote(function_name)(unquote(key)) do
+        def unquote(function_name)(unquote(key), _default) do
           {:ok, unquote(Macro.escape(value))}
         end
       end
@@ -205,8 +212,8 @@ defmodule Exfoil do
 
     # Add catch-all clauses
     safe_catch_all = quote do
-      def unquote(function_name)(_key) do
-        {:error, :not_found}
+      def unquote(function_name)(_key, default) do
+        default
       end
     end
 
@@ -216,6 +223,6 @@ defmodule Exfoil do
       end
     end
 
-    safe_function_clauses ++ bang_function_clauses ++ [safe_catch_all, bang_catch_all]
+    [safe_header] ++ safe_function_clauses ++ bang_function_clauses ++ [safe_catch_all, bang_catch_all]
   end
 end

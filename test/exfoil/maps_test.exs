@@ -16,7 +16,7 @@ defmodule Exfoil.MapsTest do
       # Test the generated functions
       assert TestMap.get(:a) == {:ok, 1}
       assert TestMap.get(:b) == {:ok, 2}
-      assert TestMap.get(:nonexistent) == {:error, :not_found}
+      assert TestMap.get(:nonexistent) == nil
 
       # Test bang versions
       assert TestMap.get!(:a) == 1
@@ -70,7 +70,7 @@ defmodule Exfoil.MapsTest do
       assert {:ok, module_name} = Maps.convert(data, :TestMap, function_name: :fetch)
       assert module_name == TestMap
       assert TestMap.fetch(:key) == {:ok, "value"}
-      assert TestMap.fetch(:nonexistent) == {:error, :not_found}
+      assert TestMap.fetch(:nonexistent) == nil
 
       # Test bang version with custom function name
       assert TestMap.fetch!(:key) == "value"
@@ -85,7 +85,7 @@ defmodule Exfoil.MapsTest do
 
       assert StringKeyMap.get("string_key") == {:ok, "value"}
       assert StringKeyMap.get("another_key") == {:ok, 123}
-      assert StringKeyMap.get("nonexistent") == {:error, :not_found}
+      assert StringKeyMap.get("nonexistent") == nil
 
       # Test bang versions
       assert StringKeyMap.get!("string_key") == "value"
@@ -160,7 +160,7 @@ defmodule Exfoil.MapsTest do
 
       assert {:ok, module_name} = Maps.convert_with_auto_name(data, function_name: :lookup)
       assert module_name.lookup(:key) == {:ok, "value"}
-      assert module_name.lookup(:nonexistent) == {:error, :not_found}
+      assert module_name.lookup(:nonexistent) == nil
 
       # Test bang version
       assert module_name.lookup!(:key) == "value"
@@ -220,7 +220,7 @@ defmodule Exfoil.MapsTest do
       assert MyData.get(:a) == {:ok, 1}
       assert MyData.get(:b) == {:ok, 2}
       assert MyData.get(:c) == {:ok, "hello"}
-      assert MyData.get(:nonexistent) == {:error, :not_found}
+      assert MyData.get(:nonexistent) == nil
 
       # Test bang versions
       assert MyData.get!(:a) == 1

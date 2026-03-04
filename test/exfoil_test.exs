@@ -28,7 +28,7 @@ defmodule ExfoilTest do
       # Test the generated functions
       assert TestTab.get(:a) == {:ok, 1}
       assert TestTab.get(:b) == {:ok, 2}
-      assert TestTab.get(:nonexistent) == {:error, :not_found}
+      assert TestTab.get(:nonexistent) == nil
 
       # Test the bang versions
       assert TestTab.get!(:a) == 1
@@ -89,7 +89,7 @@ defmodule ExfoilTest do
       assert {:ok, module_name} = Exfoil.convert(:test_tab, function_name: :fetch)
       assert module_name == TestTab
       assert TestTab.fetch(:key) == {:ok, "value"}
-      assert TestTab.fetch(:nonexistent) == {:error, :not_found}
+      assert TestTab.fetch(:nonexistent) == nil
 
       # Test bang version with custom function name
       assert TestTab.fetch!(:key) == "value"
@@ -163,7 +163,7 @@ defmodule ExfoilTest do
       assert Tab1.get(:a) == {:ok, 1}
       assert Tab1.get(:b) == {:ok, 2}
       assert Tab1.get(:c) == {:ok, "hello"}
-      assert Tab1.get(:nonexistent) == {:error, :not_found}
+      assert Tab1.get(:nonexistent) == nil
 
       # Test bang versions
       assert Tab1.get!(:a) == 1
