@@ -16,6 +16,10 @@ Exfoil is an Elixir library that converts ETS (Erlang Term Storage) table entrie
 
 ### ETS Table Conversion
 
+**Note**: Only named ETS tables (created with `:named_table` option) can be converted. Table IDs from unnamed tables are not supported.
+
+**Module Naming**: Exfoil automatically normalizes module names to proper PascalCase format. For example, `:person` becomes `Person`, `:user_profile` becomes `UserProfile`, etc.
+
 ```elixir
 # Create and populate an ETS table
 :ets.new(:tab1, [:named_table])
@@ -24,25 +28,27 @@ Exfoil is an Elixir library that converts ETS (Erlang Term Storage) table entrie
 
 # Convert to a dynamic module
 {:ok, module_name} = Exfoil.convert(:tab1)
-# => {:ok, :Tab1}
+# => {:ok, Tab1}
 
 # Now you can call functions directly!
-:Tab1.get(:a)  # => {:ok, 1}
-:Tab1.get(:b)  # => {:ok, 2}
-:Tab1.get(:nonexistent)  # => {:error, :not_found}
+Tab1.get(:a)  # => {:ok, 1}
+Tab1.get(:b)  # => {:ok, 2}
+Tab1.get(:nonexistent)  # => {:error, :not_found}
 
 # Or use the bang version for direct access
-:Tab1.get!(:a)  # => 1
-:Tab1.get!(:b)  # => 2
-:Tab1.get!(:nonexistent)  # => raises KeyError
+Tab1.get!(:a)  # => 1
+Tab1.get!(:b)  # => 2
+Tab1.get!(:nonexistent)  # => raises KeyError
 
 # Helper functions
-:Tab1.keys()   # => [:a, :b]
-:Tab1.all()    # => [a: 1, b: 2]
-:Tab1.count()  # => 2
+Tab1.keys()   # => [:a, :b]
+Tab1.all()    # => [a: 1, b: 2]
+Tab1.count()  # => 2
 ```
 
 ### Map Conversion
+
+**Module Naming**: Module names are automatically normalized to PascalCase (e.g., `:person` → `Person`, `:user_data` → `UserData`).
 
 ```elixir
 alias Exfoil.Maps
@@ -52,23 +58,23 @@ data = %{name: "Alice", age: 30, city: "San Francisco"}
 
 # Convert to a dynamic module
 {:ok, module_name} = Maps.convert(data, :Person)
-# => {:ok, :Person}
+# => {:ok, Person}
 
 # Access data through function calls
-:Person.get(:name)  # => {:ok, "Alice"}
-:Person.get(:age)   # => {:ok, 30}
-:Person.get(:nonexistent)  # => {:error, :not_found}
+Person.get(:name)  # => {:ok, "Alice"}
+Person.get(:age)   # => {:ok, 30}
+Person.get(:nonexistent)  # => {:error, :not_found}
 
 # Or use the bang version for direct access
-:Person.get!(:name)  # => "Alice"
-:Person.get!(:age)   # => 30
-:Person.get!(:nonexistent)  # => raises KeyError
+Person.get!(:name)  # => "Alice"
+Person.get!(:age)   # => 30
+Person.get!(:nonexistent)  # => raises KeyError
 
 # Helper functions
-:Person.keys()    # => [:name, :age, :city]
-:Person.count()   # => 3
-:Person.to_map()  # => %{name: "Alice", age: 30, city: "San Francisco"}
-:Person.has_key?(:name)  # => true
+Person.keys()    # => [:name, :age, :city]
+Person.count()   # => 3
+Person.to_map()  # => %{name: "Alice", age: 30, city: "San Francisco"}
+Person.has_key?(:name)  # => true
 ```
 
 ## Advanced Usage
@@ -84,14 +90,14 @@ Exfoil handles all Elixir data types:
 :ets.insert(:complex_table, {:map, %{key: "value"}})
 :ets.insert(:complex_table, {:tuple, {:nested, :tuple}})
 
-{:ok, :ComplexTable} = Exfoil.convert(:complex_table)
+{:ok, ComplexTable} = Exfoil.convert(:complex_table)
 
-:ComplexTable.get(:string)  # => {:ok, "hello"}
-:ComplexTable.get(:map)     # => {:ok, %{key: "value"}}
+ComplexTable.get(:string)  # => {:ok, "hello"}
+ComplexTable.get(:map)     # => {:ok, %{key: "value"}}
 
 # Bang versions for direct access
-:ComplexTable.get!(:string)  # => "hello"
-:ComplexTable.get!(:map)     # => %{key: "value"}
+ComplexTable.get!(:string)  # => "hello"
+ComplexTable.get!(:map)     # => %{key: "value"}
 ```
 
 ### Custom Configuration
@@ -103,12 +109,12 @@ You can customize the generated module name and function name:
 :ets.insert(:config, {:api_key, "secret"})
 
 # Custom module and function names
-{:ok, :MyConfig} = Exfoil.convert(:config,
+{:ok, MyConfig} = Exfoil.convert(:config,
                                   module_name: :MyConfig,
                                   function_name: :lookup)
 
-:MyConfig.lookup(:api_key)   # => {:ok, "secret"}
-:MyConfig.lookup!(:api_key)  # => "secret"
+MyConfig.lookup(:api_key)   # => {:ok, "secret"}
+MyConfig.lookup!(:api_key)  # => "secret"
 ```
 
 ### Error Handling
@@ -116,6 +122,10 @@ You can customize the generated module name and function name:
 ```elixir
 # Non-existent table
 {:error, :table_not_found} = Exfoil.convert(:missing_table)
+
+# Unnamed table (without :named_table option)
+table_id = :ets.new(:my_table, [:set])  # Creates table but not named
+{:error, :table_not_found} = Exfoil.convert(:my_table)  # Fails - table not named
 
 # Using convert! for exceptions
 Exfoil.convert!(:missing_table)  # => raises RuntimeError
@@ -132,14 +142,14 @@ alias Exfoil.Maps
 
 # Convert a simple map
 user_data = %{username: "bob", role: :admin, active: true}
-{:ok, :UserModule} = Maps.convert(user_data, :UserModule)
+{:ok, UserModule} = Maps.convert(user_data, :UserModule)
 
-:UserModule.get(:username)  # => {:ok, "bob"}
-:UserModule.get(:role)      # => {:ok, :admin}
+UserModule.get(:username)  # => {:ok, "bob"}
+UserModule.get(:role)      # => {:ok, :admin}
 
 # Bang versions for direct access
-:UserModule.get!(:username)  # => "bob"
-:UserModule.get!(:role)      # => :admin
+UserModule.get!(:username)  # => "bob"
+UserModule.get!(:role)      # => :admin
 ```
 
 ### Auto-Generated Module Names
@@ -147,7 +157,7 @@ user_data = %{username: "bob", role: :admin, active: true}
 ```elixir
 # Let Exfoil generate a unique module name
 config = %{env: :dev, debug: true}
-{:ok, module_name} = Maps.convert_with_auto_name(config)
+{:ok, module_name} = Exfoil.Maps.convert_with_auto_name(config)
 
 module_name.get(:env)   # => {:ok, :dev}
 module_name.get!(:env)  # => :dev
@@ -162,14 +172,14 @@ complex_data = %{
   metadata: {:version, "1.2.3"}
 }
 
-{:ok, :AppConfig} = Maps.convert(complex_data, :AppConfig)
+{:ok, AppConfig} = Exfoil.Maps.convert(complex_data, :AppConfig)
 
-:AppConfig.get(:config)    # => {:ok, %{database: "postgres", port: 5432}}
-:AppConfig.get(:features)  # => {:ok, [:auth, :logging, :metrics]}
+AppConfig.get(:config)    # => {:ok, %{database: "postgres", port: 5432}}
+AppConfig.get(:features)  # => {:ok, [:auth, :logging, :metrics]}
 
 # Bang versions for direct access
-:AppConfig.get!(:config)    # => %{database: "postgres", port: 5432}
-:AppConfig.get!(:features)  # => [:auth, :logging, :metrics]
+AppConfig.get!(:config)    # => %{database: "postgres", port: 5432}
+AppConfig.get!(:features)  # => [:auth, :logging, :metrics]
 ```
 
 ### Mixed Key Types
@@ -183,16 +193,16 @@ mixed_keys = %{
   1 => "number key"
 }
 
-{:ok, :MixedKeys} = Maps.convert(mixed_keys, :MixedKeys)
+{:ok, MixedKeys} = Exfoil.Maps.convert(mixed_keys, :MixedKeys)
 
-:MixedKeys.get(:atom_key)     # => {:ok, "atom value"}
-:MixedKeys.get("string_key")  # => {:ok, "string value"}
-:MixedKeys.get(1)             # => {:ok, "number key"}
+MixedKeys.get(:atom_key)     # => {:ok, "atom value"}
+MixedKeys.get("string_key")  # => {:ok, "string value"}
+MixedKeys.get(1)             # => {:ok, "number key"}
 
 # Bang versions for direct access
-:MixedKeys.get!(:atom_key)     # => "atom value"
-:MixedKeys.get!("string_key")  # => "string value"
-:MixedKeys.get!(1)             # => "number key"
+MixedKeys.get!(:atom_key)     # => "atom value"
+MixedKeys.get!("string_key")  # => "string value"
+MixedKeys.get!(1)             # => "number key"
 ```
 
 ### Map-Specific Helper Functions
@@ -200,9 +210,59 @@ mixed_keys = %{
 In addition to the standard helpers (`keys/0`, `all/0`, `count/0`), map-generated modules include:
 
 ```elixir
-:MyModule.to_map()          # Returns the original map
-:MyModule.has_key?(:key)    # Checks if key exists
+MyModule.to_map()          # Returns the original map
+MyModule.has_key?(:key)    # Checks if key exists
 ```
+
+## Module and Function Name Normalization
+
+### Module Names
+
+Exfoil automatically normalizes all module names to proper PascalCase format, regardless of how you specify them:
+
+```elixir
+# All of these create modules with proper PascalCase names
+
+# ETS Examples
+Exfoil.convert(:my_table, module_name: :person)        # => {:ok, Person}
+Exfoil.convert(:my_table, module_name: :user_profile)  # => {:ok, UserProfile}
+Exfoil.convert(:my_table, module_name: :UserData)      # => {:ok, UserData} (preserved)
+
+# Maps Examples
+Exfoil.Maps.convert(%{}, :person)        # => {:ok, Person}
+Exfoil.Maps.convert(%{}, :user_profile)  # => {:ok, UserProfile}
+Exfoil.Maps.convert(%{}, :UserData)      # => {:ok, UserData} (preserved)
+```
+
+**Module Normalization Rules:**
+- Lowercase atoms (`:person`) are capitalized to PascalCase (`Person`)
+- Underscore-separated atoms (`:user_profile`) are converted to PascalCase (`UserProfile`)
+- Already proper PascalCase atoms (`:UserData`) are preserved as-is
+- This ensures consistent module naming regardless of input format
+
+### Function Names
+
+Exfoil also automatically normalizes function names to follow Elixir's naming rules (must start with lowercase letter or underscore):
+
+```elixir
+# Function names are automatically normalized to lowercase
+
+# ETS Examples
+Exfoil.convert(:my_table, function_name: :Lookup)        # Function becomes `lookup`
+Exfoil.convert(:my_table, function_name: :GetData)       # Function becomes `getdata`
+Exfoil.convert(:my_table, function_name: :_PrivateGet)   # Function becomes `_privateget`
+
+# Maps Examples
+Exfoil.Maps.convert(%{}, :data, function_name: :Fetch)   # Function becomes `fetch`
+Exfoil.Maps.convert(%{}, :data, function_name: :fetch)   # Function stays `fetch`
+```
+
+**Function Normalization Rules:**
+- Uppercase starting letters are converted to lowercase (`:Lookup` → `:lookup`)
+- Mixed case names are fully lowercased (`:GetData` → `:getdata`)
+- Underscore prefixes are preserved (`:_PrivateGet` → `:_privateget`)
+- Already valid function names are kept as-is (`:fetch` → `:fetch`)
+- This prevents syntax errors when calling generated functions
 
 ## API Reference
 
@@ -211,7 +271,7 @@ In addition to the standard helpers (`keys/0`, `all/0`, `count/0`), map-generate
 Converts an ETS table to a dynamic module.
 
 **Parameters:**
-- `table_name` (atom) - Name of the ETS table
+- `table_name` (atom) - Name of the ETS table (must be a named table created with `:named_table` option)
 - `opts` (keyword list) - Optional configuration
   - `:module_name` - Custom module name (defaults to capitalized table name)
   - `:function_name` - Custom function name (defaults to `:get`)
@@ -222,7 +282,7 @@ Converts an ETS table to a dynamic module.
 
 ### `Exfoil.convert!/2`
 
-Same as `convert/2` but raises an exception on error.
+Same as `convert/2` but raises an exception on error. Requires named ETS tables only.
 
 ### Generated Module Functions
 

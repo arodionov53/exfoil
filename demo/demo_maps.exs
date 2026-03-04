@@ -11,18 +11,18 @@ simple_data = %{name: "Alice", age: 30, city: "San Francisco"}
 
 {:ok, _module} = Maps.convert(simple_data, :Person)
 
-IO.puts("   :Person.get(:name) => #{inspect :Person.get(:name)}")
-IO.puts("   :Person.get(:age) => #{inspect :Person.get(:age)}")
-IO.puts("   :Person.get(:city) => #{inspect :Person.get(:city)}")
-IO.puts("   :Person.get(:nonexistent) => #{inspect :Person.get(:nonexistent)}")
+IO.puts("   Person.get(:name) => #{inspect Person.get(:name)}")
+IO.puts("   Person.get(:age) => #{inspect Person.get(:age)}")
+IO.puts("   Person.get(:city) => #{inspect Person.get(:city)}")
+IO.puts("   Person.get(:nonexistent) => #{inspect Person.get(:nonexistent)}")
 IO.puts("   ")
 IO.puts("   Bang versions for direct access:")
-IO.puts("   :Person.get!(:name) => #{inspect :Person.get!(:name)}")
-IO.puts("   :Person.get!(:age) => #{inspect :Person.get!(:age)}")
-IO.puts("   :Person.get!(:city) => #{inspect :Person.get!(:city)}")
+IO.puts("   Person.get!(:name) => #{inspect Person.get!(:name)}")
+IO.puts("   Person.get!(:age) => #{inspect Person.get!(:age)}")
+IO.puts("   Person.get!(:city) => #{inspect Person.get!(:city)}")
 IO.puts("   ")
-IO.puts("   :Person.count() => #{inspect :Person.count()}")
-IO.puts("   :Person.keys() => #{inspect :Person.keys()}")
+IO.puts("   Person.count() => #{inspect Person.count()}")
+IO.puts("   Person.keys() => #{inspect Person.keys()}")
 IO.puts("")
 
 # Example 2: Complex data types
@@ -36,14 +36,14 @@ complex_data = %{
 
 {:ok, _module} = Maps.convert(complex_data, :AppSettings)
 
-IO.puts("   :AppSettings.get(:config) => #{inspect :AppSettings.get(:config)}")
-IO.puts("   :AppSettings.get(:features) => #{inspect :AppSettings.get(:features)}")
-IO.puts("   :AppSettings.get(:metadata) => #{inspect :AppSettings.get(:metadata)}")
-IO.puts("   :AppSettings.get(:stats) => #{inspect :AppSettings.get(:stats)}")
+IO.puts("   AppSettings.get(:config) => #{inspect AppSettings.get(:config)}")
+IO.puts("   AppSettings.get(:features) => #{inspect AppSettings.get(:features)}")
+IO.puts("   AppSettings.get(:metadata) => #{inspect AppSettings.get(:metadata)}")
+IO.puts("   AppSettings.get(:stats) => #{inspect AppSettings.get(:stats)}")
 IO.puts("   ")
 IO.puts("   Bang versions for cleaner nested access:")
-IO.puts("   :AppSettings.get!(:config) => #{inspect :AppSettings.get!(:config)}")
-IO.puts("   :AppSettings.get!(:features) => #{inspect :AppSettings.get!(:features)}")
+IO.puts("   AppSettings.get!(:config) => #{inspect AppSettings.get!(:config)}")
+IO.puts("   AppSettings.get!(:features) => #{inspect AppSettings.get!(:features)}")
 IO.puts("")
 
 # Example 3: Custom function name
@@ -52,13 +52,13 @@ user_data = %{username: "bob", role: :admin, active: true}
 
 {:ok, _module} = Maps.convert(user_data, :User, function_name: :lookup)
 
-IO.puts("   :User.lookup(:username) => #{inspect :User.lookup(:username)}")
-IO.puts("   :User.lookup(:role) => #{inspect :User.lookup(:role)}")
-IO.puts("   :User.lookup(:active) => #{inspect :User.lookup(:active)}")
+IO.puts("   User.lookup(:username) => #{inspect User.lookup(:username)}")
+IO.puts("   User.lookup(:role) => #{inspect User.lookup(:role)}")
+IO.puts("   User.lookup(:active) => #{inspect User.lookup(:active)}")
 IO.puts("   ")
 IO.puts("   Bang versions (custom function name):")
-IO.puts("   :User.lookup!(:username) => #{inspect :User.lookup!(:username)}")
-IO.puts("   :User.lookup!(:role) => #{inspect :User.lookup!(:role)}")
+IO.puts("   User.lookup!(:username) => #{inspect User.lookup!(:username)}")
+IO.puts("   User.lookup!(:role) => #{inspect User.lookup!(:role)}")
 IO.puts("")
 
 # Example 4: Auto-generated module names
@@ -87,14 +87,14 @@ mixed_data = %{
 
 {:ok, _module} = Maps.convert(mixed_data, :MixedKeys)
 
-IO.puts("   :MixedKeys.get(:atom_key) => #{inspect :MixedKeys.get(:atom_key)}")
-IO.puts("   :MixedKeys.get(\"string_key\") => #{inspect :MixedKeys.get("string_key")}")
-IO.puts("   :MixedKeys.get(1) => #{inspect :MixedKeys.get(1)}")
+IO.puts("   MixedKeys.get(:atom_key) => #{inspect MixedKeys.get(:atom_key)}")
+IO.puts("   MixedKeys.get(\"string_key\") => #{inspect MixedKeys.get("string_key")}")
+IO.puts("   MixedKeys.get(1) => #{inspect MixedKeys.get(1)}")
 IO.puts("   ")
 IO.puts("   Bang versions:")
-IO.puts("   :MixedKeys.get!(:atom_key) => #{inspect :MixedKeys.get!(:atom_key)}")
-IO.puts("   :MixedKeys.get!(\"string_key\") => #{inspect :MixedKeys.get!("string_key")}")
-IO.puts("   :MixedKeys.get!(1) => #{inspect :MixedKeys.get!(1)}")
+IO.puts("   MixedKeys.get!(:atom_key) => #{inspect MixedKeys.get!(:atom_key)}")
+IO.puts("   MixedKeys.get!(\"string_key\") => #{inspect MixedKeys.get!("string_key")}")
+IO.puts("   MixedKeys.get!(1) => #{inspect MixedKeys.get!(1)}")
 IO.puts("")
 
 # Example 6: Utility functions
@@ -103,12 +103,12 @@ sample_data = %{a: 1, b: 2, c: 3, d: 4}
 
 {:ok, _module} = Maps.convert(sample_data, :Sample)
 
-IO.puts("   :Sample.count() => #{inspect :Sample.count()}")
-IO.puts("   :Sample.keys() => #{inspect :Sample.keys()}")
-IO.puts("   :Sample.all() => #{inspect :Sample.all()}")
-IO.puts("   :Sample.to_map() => #{inspect :Sample.to_map()}")
-IO.puts("   :Sample.has_key?(:a) => #{inspect :Sample.has_key?(:a)}")
-IO.puts("   :Sample.has_key?(:z) => #{inspect :Sample.has_key?(:z)}")
+IO.puts("   Sample.count() => #{inspect Sample.count()}")
+IO.puts("   Sample.keys() => #{inspect Sample.keys()}")
+IO.puts("   Sample.all() => #{inspect Sample.all()}")
+IO.puts("   Sample.to_map() => #{inspect Sample.to_map()}")
+IO.puts("   Sample.has_key?(:a) => #{inspect Sample.has_key?(:a)}")
+IO.puts("   Sample.has_key?(:z) => #{inspect Sample.has_key?(:z)}")
 IO.puts("")
 
 # Example 7: Empty map
@@ -117,10 +117,10 @@ empty_data = %{}
 
 {:ok, _module} = Maps.convert(empty_data, :EmptyModule)
 
-IO.puts("   :EmptyModule.count() => #{inspect :EmptyModule.count()}")
-IO.puts("   :EmptyModule.keys() => #{inspect :EmptyModule.keys()}")
-IO.puts("   :EmptyModule.all() => #{inspect :EmptyModule.all()}")
-IO.puts("   :EmptyModule.to_map() => #{inspect :EmptyModule.to_map()}")
+IO.puts("   EmptyModule.count() => #{inspect EmptyModule.count()}")
+IO.puts("   EmptyModule.keys() => #{inspect EmptyModule.keys()}")
+IO.puts("   EmptyModule.all() => #{inspect EmptyModule.all()}")
+IO.puts("   EmptyModule.to_map() => #{inspect EmptyModule.to_map()}")
 IO.puts("")
 
 # Example 8: Large map performance demo
@@ -129,17 +129,17 @@ large_data = 1..100 |> Enum.into(%{}, fn i -> {String.to_atom("item_#{i}"), i * 
 
 {:ok, _module} = Maps.convert(large_data, :LargeData)
 
-IO.puts("   :LargeData.count() => #{inspect :LargeData.count()}")
-IO.puts("   :LargeData.get(:item_10) => #{inspect :LargeData.get(:item_10)}")
-IO.puts("   :LargeData.get(:item_50) => #{inspect :LargeData.get(:item_50)}")
-IO.puts("   :LargeData.get!(:item_10) => #{inspect :LargeData.get!(:item_10)}")
-IO.puts("   :LargeData.get!(:item_50) => #{inspect :LargeData.get!(:item_50)}")
-IO.puts("   :LargeData.has_key?(:item_99) => #{inspect :LargeData.has_key?(:item_99)}")
+IO.puts("   LargeData.count() => #{inspect LargeData.count()}")
+IO.puts("   LargeData.get(:item_10) => #{inspect LargeData.get(:item_10)}")
+IO.puts("   LargeData.get(:item_50) => #{inspect LargeData.get(:item_50)}")
+IO.puts("   LargeData.get!(:item_10) => #{inspect LargeData.get!(:item_10)}")
+IO.puts("   LargeData.get!(:item_50) => #{inspect LargeData.get!(:item_50)}")
+IO.puts("   LargeData.has_key?(:item_99) => #{inspect LargeData.has_key?(:item_99)}")
 
 IO.puts("\n=== Demo Complete ===")
 IO.puts("All generated modules are now available for use!")
 IO.puts("Try calling functions like:")
-IO.puts("  - :Person.get(:name) or :Person.get!(:name)")
-IO.puts("  - :AppSettings.get(:config) or :AppSettings.get!(:config)")
+IO.puts("  - Person.get(:name) or Person.get!(:name)")
+IO.puts("  - AppSettings.get(:config) or AppSettings.get!(:config)")
 IO.puts("  - Safe versions return {:ok, value} or {:error, :not_found}")
 IO.puts("  - Bang versions return value directly or raise KeyError")

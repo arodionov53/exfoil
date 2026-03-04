@@ -17,16 +17,16 @@ IO.puts("   Generated module: #{inspect(module_name)}")
 
 # Test the generated functions
 IO.puts("\n3. Testing the generated Tab1 module:")
-IO.puts("   :Tab1.get(:a) = #{inspect(:Tab1.get(:a))}")
-IO.puts("   :Tab1.get(:b) = #{inspect(:Tab1.get(:b))}")
-IO.puts("   :Tab1.get(:nonexistent) = #{inspect(:Tab1.get(:nonexistent))}")
+IO.puts("   Tab1.get(:a) = #{inspect(Tab1.get(:a))}")
+IO.puts("   Tab1.get(:b) = #{inspect(Tab1.get(:b))}")
+IO.puts("   Tab1.get(:nonexistent) = #{inspect(Tab1.get(:nonexistent))}")
 
 IO.puts("\n3b. Testing the bang version functions:")
-IO.puts("   :Tab1.get!(:a) = #{inspect(:Tab1.get!(:a))}")
-IO.puts("   :Tab1.get!(:b) = #{inspect(:Tab1.get!(:b))}")
-IO.write("   :Tab1.get!(:nonexistent) = ")
+IO.puts("   Tab1.get!(:a) = #{inspect(Tab1.get!(:a))}")
+IO.puts("   Tab1.get!(:b) = #{inspect(Tab1.get!(:b))}")
+IO.write("   Tab1.get!(:nonexistent) = ")
 try do
-  IO.puts("#{inspect(:Tab1.get!(:nonexistent))}")
+  IO.puts("#{inspect(Tab1.get!(:nonexistent))}")
 rescue
   e in KeyError ->
     IO.puts("KeyError: #{Exception.message(e)}")
@@ -34,9 +34,9 @@ end
 
 # Test helper functions
 IO.puts("\n4. Testing helper functions:")
-IO.puts("   :Tab1.keys() = #{inspect(:Tab1.keys())}")
-IO.puts("   :Tab1.all() = #{inspect(:Tab1.all())}")
-IO.puts("   :Tab1.count() = #{inspect(:Tab1.count())}")
+IO.puts("   Tab1.keys() = #{inspect(Tab1.keys())}")
+IO.puts("   Tab1.all() = #{inspect(Tab1.all())}")
+IO.puts("   Tab1.count() = #{inspect(Tab1.count())}")
 
 # Demo with more complex data
 IO.puts("\n=== Advanced Example ===")
@@ -52,16 +52,16 @@ IO.puts("\n5. Creating complex ETS table with various data types")
 IO.puts("   Generated module: #{inspect(complex_module)}")
 
 IO.puts("\n6. Testing complex data retrieval:")
-IO.puts("   :ComplexData.get(:string) = #{inspect(:ComplexData.get(:string))}")
-IO.puts("   :ComplexData.get(:list) = #{inspect(:ComplexData.get(:list))}")
-IO.puts("   :ComplexData.get(:map) = #{inspect(:ComplexData.get(:map))}")
-IO.puts("   :ComplexData.get(:tuple) = #{inspect(:ComplexData.get(:tuple))}")
+IO.puts("   ComplexData.get(:string) = #{inspect(ComplexData.get(:string))}")
+IO.puts("   ComplexData.get(:list) = #{inspect(ComplexData.get(:list))}")
+IO.puts("   ComplexData.get(:map) = #{inspect(ComplexData.get(:map))}")
+IO.puts("   ComplexData.get(:tuple) = #{inspect(ComplexData.get(:tuple))}")
 
 IO.puts("\n6b. Testing bang versions for direct access:")
-IO.puts("   :ComplexData.get!(:string) = #{inspect(:ComplexData.get!(:string))}")
-IO.puts("   :ComplexData.get!(:list) = #{inspect(:ComplexData.get!(:list))}")
-IO.puts("   :ComplexData.get!(:map) = #{inspect(:ComplexData.get!(:map))}")
-IO.puts("   :ComplexData.get!(:tuple) = #{inspect(:ComplexData.get!(:tuple))}")
+IO.puts("   ComplexData.get!(:string) = #{inspect(ComplexData.get!(:string))}")
+IO.puts("   ComplexData.get!(:list) = #{inspect(ComplexData.get!(:list))}")
+IO.puts("   ComplexData.get!(:map) = #{inspect(ComplexData.get!(:map))}")
+IO.puts("   ComplexData.get!(:tuple) = #{inspect(ComplexData.get!(:tuple))}")
 
 # Demo with custom options
 IO.puts("\n=== Custom Options Demo ===")
@@ -76,12 +76,12 @@ IO.puts("\n7. Creating table with custom module name and function name")
                                       function_name: :lookup)
 
 IO.puts("   Generated module: #{inspect(custom_module)}")
-IO.puts("   :MyConfig.lookup(:setting1) = #{inspect(:MyConfig.lookup(:setting1))}")
-IO.puts("   :MyConfig.lookup(:setting2) = #{inspect(:MyConfig.lookup(:setting2))}")
+IO.puts("   MyConfig.lookup(:setting1) = #{inspect(MyConfig.lookup(:setting1))}")
+IO.puts("   MyConfig.lookup(:setting2) = #{inspect(MyConfig.lookup(:setting2))}")
 
 IO.puts("\n7b. Testing custom bang functions:")
-IO.puts("   :MyConfig.lookup!(:setting1) = #{inspect(:MyConfig.lookup!(:setting1))}")
-IO.puts("   :MyConfig.lookup!(:setting2) = #{inspect(:MyConfig.lookup!(:setting2))}")
+IO.puts("   MyConfig.lookup!(:setting1) = #{inspect(MyConfig.lookup!(:setting1))}")
+IO.puts("   MyConfig.lookup!(:setting2) = #{inspect(MyConfig.lookup!(:setting2))}")
 
 IO.puts("\n=== Demo Complete ===")
 
