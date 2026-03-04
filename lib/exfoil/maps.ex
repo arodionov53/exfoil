@@ -1,4 +1,6 @@
 defmodule Exfoil.Maps do
+  alias Exfoil.Utils
+
   @moduledoc """
   Exfoil.Maps converts Elixir maps into dynamically generated modules with function calls.
 
@@ -44,13 +46,13 @@ defmodule Exfoil.Maps do
 
   """
   def convert(map, module_name, opts \\ []) when is_map(map) and is_atom(module_name) do
-    function_name = normalize_function_name(opts[:function_name] || :get)
+    function_name = Utils.normalize_function_name(opts[:function_name] || :get)
 
     # Convert map to list of key-value tuples for consistency with ETS format
     entries = Map.to_list(map)
 
     # Normalize the module name to ensure proper capitalization
-    normalized_module_name = normalize_module_name(module_name)
+    normalized_module_name = Utils.normalize_module_name(module_name)
 
     # Generate the module
     module_alias = create_module(normalized_module_name, function_name, entries)
@@ -99,44 +101,6 @@ defmodule Exfoil.Maps do
   end
 
   # Private functions
-
-  defp normalize_module_name(module_name) do
-    str = to_string(module_name)
-
-    # If it's already in PascalCase (starts with uppercase), keep it as is
-    if String.match?(str, ~r/^[A-Z]/) do
-      String.to_atom(str)
-    else
-      # Otherwise, split on underscores and capitalize each part
-      str
-      |> String.split("_")
-      |> Enum.map(&String.capitalize/1)
-      |> Enum.join("")
-      |> String.to_atom()
-    end
-  end
-
-  defp normalize_function_name(function_name) do
-    str = to_string(function_name)
-
-    # Function names must start with lowercase letter or underscore
-    cond do
-      # If it starts with underscore followed by uppercase, preserve underscore but lowercase the rest
-      String.match?(str, ~r/^_[A-Z]/) ->
-        "_" <> rest = str
-        String.to_atom("_" <> String.downcase(rest))
-
-      # If it starts with uppercase, convert to lowercase
-      String.match?(str, ~r/^[A-Z]/) ->
-        str
-        |> String.downcase()
-        |> String.to_atom()
-
-      # Otherwise keep as is
-      true ->
-        String.to_atom(str)
-    end
-  end
 
   defp generate_module_name(map) do
     # Create a unique module name based on map hash
