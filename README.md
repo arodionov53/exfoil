@@ -16,7 +16,7 @@ Exfoil is an Elixir library that converts ETS (Erlang Term Storage) table entrie
 
 ### ETS Table Conversion
 
-**Note**: Only named ETS tables (created with `:named_table` option) can be converted. Table IDs from unnamed tables are not supported.
+**Note**: Exfoil supports both named ETS tables (created with `:named_table` option) and unnamed tables (using table references). For unnamed tables, module names are auto-generated unless specified.
 
 **Table Type Support**: Exfoil works with all ETS table types (`:set`, `:ordered_set`, `:bag`, `:duplicate_bag`). However, for `:bag` and `:duplicate_bag` tables that allow multiple values per key, only the first value is accessible via `get/2`. Use `all/0` to see all entries or access ETS directly for full multi-value support.
 
@@ -47,6 +47,28 @@ Tab1.get!(:nonexistent)  # => raises KeyError
 Tab1.keys()   # => [:a, :b]
 Tab1.all()    # => [a: 1, b: 2]
 Tab1.count()  # => 2
+```
+
+#### Working with Unnamed Tables
+
+```elixir
+# Create an unnamed ETS table (returns a reference)
+table_ref = :ets.new(:unnamed_table, [:set])
+:ets.insert(table_ref, {:name, "Alice"})
+:ets.insert(table_ref, {:age, 30})
+
+# Convert using the table reference
+{:ok, module} = Exfoil.convert(table_ref)
+# Module name is auto-generated: ExfoilTable1A2B3C4D (based on reference hash)
+
+# Use the module just like named tables
+module.get(:name)  # => {:ok, "Alice"}
+module.get(:age)   # => {:ok, 30}
+module.get!(:name) # => "Alice"
+
+# Or provide a custom module name
+{:ok, Person} = Exfoil.convert(table_ref, module_name: :Person)
+Person.get(:name)  # => {:ok, "Alice"}
 ```
 
 ### Map Conversion
@@ -127,9 +149,11 @@ MyConfig.lookup!(:api_key)  # => "secret"
 # Non-existent table
 {:error, :table_not_found} = Exfoil.convert(:missing_table)
 
-# Unnamed table (without :named_table option)
-table_id = :ets.new(:my_table, [:set])  # Creates table but not named
-{:error, :table_not_found} = Exfoil.convert(:my_table)  # Fails - table not named
+# Unnamed table (using reference)
+table_ref = :ets.new(:my_table, [:set])  # Returns a reference
+:ets.insert(table_ref, {:key, "value"})
+{:ok, module} = Exfoil.convert(table_ref)  # Works with reference
+module.get(:key)  # => {:ok, "value"}
 
 # Using convert! for exceptions
 Exfoil.convert!(:missing_table)  # => raises RuntimeError
@@ -324,7 +348,7 @@ Exfoil.Maps.convert(%{}, :data, function_name: :fetch)   # Function stays `fetch
 Converts an ETS table to a dynamic module.
 
 **Parameters:**
-- `table_name` (atom) - Name of the ETS table (must be a named table created with `:named_table` option)
+- `table_name_or_ref` - Name of a named ETS table (atom) or a reference to an unnamed table
 - `opts` (keyword list) - Optional configuration
   - `:module_name` - Custom module name (defaults to capitalized table name)
   - `:function_name` - Custom function name (defaults to `:get`)

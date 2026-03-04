@@ -21,9 +21,9 @@ defmodule Exfoil do
 
   ## Parameters
 
-  - `table_name` - The name of the ETS table (atom)
+  - `table_name_or_ref` - The name of a named ETS table (atom) or a reference to an unnamed table
   - `opts` - Optional keyword list with configuration options
-    - `:module_name` - Custom module name (defaults to capitalized table name)
+    - `:module_name` - Custom module name (defaults to capitalized table name for named tables or auto-generated for unnamed)
     - `:function_name` - Custom function name (defaults to `:get`)
 
   ## Examples
@@ -50,22 +50,22 @@ defmodule Exfoil do
       Tab1.get!(:d)  # => raises KeyError
 
   """
-  def convert(table_name, opts \\ []) when is_atom(table_name) do
+  def convert(table_name_or_ref, opts \\ []) do
     # Validate that the ETS table exists
-    case :ets.info(table_name) do
+    case :ets.info(table_name_or_ref) do
       :undefined ->
         {:error, :table_not_found}
 
-      _info ->
+      info ->
         module_name = if opts[:module_name] do
           normalize_module_name(opts[:module_name])
         else
-          default_module_name(table_name)
+          default_module_name_for_table(table_name_or_ref, info)
         end
         function_name = normalize_function_name(opts[:function_name] || :get)
 
         # Get all entries from the ETS table
-        entries = :ets.tab2list(table_name)
+        entries = :ets.tab2list(table_name_or_ref)
 
         # Generate the module
         module_alias = create_module(module_name, function_name, entries)
@@ -113,8 +113,24 @@ defmodule Exfoil do
     end
   end
 
-  defp default_module_name(table_name) do
-    normalize_module_name(table_name)
+  defp default_module_name_for_table(table_name_or_ref, info) do
+    cond do
+      # If it's an atom (named table), use the table name
+      is_atom(table_name_or_ref) ->
+        normalize_module_name(table_name_or_ref)
+
+      # If it's a reference (unnamed table), generate a name based on table info
+      is_reference(table_name_or_ref) ->
+        # Get the table ID from the info
+        table_id = Keyword.get(info, :id, table_name_or_ref)
+        # Generate a unique module name based on the reference
+        ref_hash = :erlang.phash2(table_id)
+        String.to_atom("ExfoilTable#{Integer.to_string(ref_hash, 16)}")
+
+      true ->
+        # Fallback to a generic name
+        :ExfoilTable
+    end
   end
 
   defp normalize_function_name(function_name) do
