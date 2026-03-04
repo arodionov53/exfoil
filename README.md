@@ -487,7 +487,7 @@ Add `exfoil` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:exfoil, "~> 0.1.0"}
+    {:exfoil, "~> 1.0.0"}
   ]
 end
 ```
