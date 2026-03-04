@@ -5,6 +5,7 @@ Exfoil is an Elixir library that converts ETS (Erlang Term Storage) table entrie
 ## Features
 
 - **ETS to Module Conversion**: Convert any ETS table into a dynamically generated Elixir module
+- **DETS to Module Conversion**: Convert DETS (disk-based) tables for persistent data access
 - **Map to Module Conversion**: Convert any Elixir map into a dynamically generated module
 - **Fast Function Calls**: Access data through direct function calls instead of hash table lookups
 - **Type Safety**: All data types are preserved (strings, lists, maps, tuples, etc.)
@@ -290,6 +291,77 @@ In addition to the standard helpers (`keys/0`, `all/0`, `count/0`), map-generate
 MyModule.to_map()          # Returns the original map
 MyModule.has_key?(:key)    # Checks if key exists
 ```
+
+## DETS (Disk-based Storage) Support
+
+Exfoil also supports DETS tables, which are disk-based versions of ETS tables that persist data across application restarts.
+
+### Basic DETS Conversion
+
+```elixir
+alias Exfoil.Dets
+
+# Open a DETS table
+{:ok, table} = :dets.open_file(:config_dets, [type: :set])
+:dets.insert(table, {:database_host, "localhost"})
+:dets.insert(table, {:database_port, 5432})
+:dets.insert(table, {:cache_enabled, true})
+
+# Convert to a module
+{:ok, ConfigDets} = Dets.convert(:config_dets)
+
+# Use it like any other Exfoil module
+ConfigDets.get(:database_host)  # => {:ok, "localhost"}
+ConfigDets.get(:database_port)  # => {:ok, 5432}
+ConfigDets.get!(:cache_enabled) # => true
+
+# Remember to close the DETS table
+:dets.close(table)
+```
+
+### Persistent Storage Example
+
+```elixir
+# Create a persistent configuration file
+file_path = "app_config.dets"
+
+# Save configuration
+{:ok, table} = :dets.open_file(:app_config,
+                                [{:file, String.to_charlist(file_path)},
+                                 {:type, :set}])
+:dets.insert(table, {:version, "1.0.0"})
+:dets.insert(table, {:environment, :production})
+:dets.close(table)
+
+# Later, reopen and use the persisted data
+{:ok, _} = :dets.open_file(:app_config, [{:file, String.to_charlist(file_path)}])
+{:ok, AppConfig} = Dets.convert(:app_config)
+
+AppConfig.get(:version)      # => {:ok, "1.0.0"}
+AppConfig.get!(:environment) # => :production
+
+:dets.close(:app_config)
+```
+
+### Convenience Function
+
+```elixir
+# Open file, convert, and optionally close in one step
+{:ok, Config} = Dets.convert_file("config.dets", :config,
+                                   module_name: :Config,
+                                   close_after: true)
+
+Config.get(:setting)  # => {:ok, "value"}
+```
+
+**DETS Features:**
+- Persistent storage that survives application restarts
+- Same API as ETS/Maps conversion
+- Supports all DETS table types (`:set`, `:bag`, `:duplicate_bag`)
+- Automatic file handling with `convert_file/3`
+- Ideal for configuration, caching, and persistent lookups
+
+**Note:** DETS operations read all data into memory during conversion, so the generated module works entirely in memory with no disk I/O during lookups.
 
 ## Module and Function Name Normalization
 
