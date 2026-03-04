@@ -18,6 +18,8 @@ Exfoil is an Elixir library that converts ETS (Erlang Term Storage) table entrie
 
 **Note**: Only named ETS tables (created with `:named_table` option) can be converted. Table IDs from unnamed tables are not supported.
 
+**Table Type Support**: Exfoil works with all ETS table types (`:set`, `:ordered_set`, `:bag`, `:duplicate_bag`). However, for `:bag` and `:duplicate_bag` tables that allow multiple values per key, only the first value is accessible via `get/2`. Use `all/0` to see all entries or access ETS directly for full multi-value support.
+
 **Module Naming**: Exfoil automatically normalizes module names to proper PascalCase format. For example, `:person` becomes `Person`, `:user_profile` becomes `UserProfile`, etc.
 
 ```elixir
@@ -132,6 +134,55 @@ table_id = :ets.new(:my_table, [:set])  # Creates table but not named
 # Using convert! for exceptions
 Exfoil.convert!(:missing_table)  # => raises RuntimeError
 ```
+
+### ETS Table Type Compatibility
+
+Exfoil works with all ETS table types, but with some limitations for multi-value tables:
+
+```elixir
+# Set tables (default) - One value per key
+:ets.new(:set_table, [:named_table, :set])
+:ets.insert(:set_table, {:a, 1})
+:ets.insert(:set_table, {:a, 2})  # Overwrites previous value
+
+{:ok, SetTable} = Exfoil.convert(:set_table)
+SetTable.get(:a)  # => {:ok, 2}
+
+# Ordered Set tables - One value per key, maintains order
+:ets.new(:ordered_set_table, [:named_table, :ordered_set])
+:ets.insert(:ordered_set_table, {:c, 3})
+:ets.insert(:ordered_set_table, {:a, 1})
+:ets.insert(:ordered_set_table, {:b, 2})
+
+{:ok, OrderedSetTable} = Exfoil.convert(:ordered_set_table)
+OrderedSetTable.keys()  # => [:a, :b, :c]  (ordered)
+
+# Bag tables - Multiple values per key (with limitations)
+:ets.new(:bag_table, [:named_table, :bag])
+:ets.insert(:bag_table, {:a, 1})
+:ets.insert(:bag_table, {:a, 2})
+
+{:ok, BagTable} = Exfoil.convert(:bag_table)
+BagTable.get(:a)  # => {:ok, 1}  (only returns first value)
+BagTable.all()    # => [a: 1, a: 2]  (shows all values)
+
+# Duplicate Bag tables - Allows duplicate key-value pairs (with limitations)
+:ets.new(:dup_bag_table, [:named_table, :duplicate_bag])
+:ets.insert(:dup_bag_table, {:a, 1})
+:ets.insert(:dup_bag_table, {:a, 1})  # Creates duplicate
+
+{:ok, DupBagTable} = Exfoil.convert(:dup_bag_table)
+DupBagTable.get(:a)  # => {:ok, 1}  (only returns first value)
+DupBagTable.all()    # => [a: 1, a: 1]  (shows all entries)
+```
+
+**Important Notes:**
+- **:set** and **:ordered_set** work perfectly with Exfoil (one value per key)
+- **:bag** and **:duplicate_bag** tables compile successfully but have limitations:
+  - `get/2` only returns the first value for multi-value keys
+  - `all/0` returns all entries including duplicates
+  - `keys/0` includes duplicate keys for multi-value entries
+- For full multi-value support, use ETS directly with `:ets.lookup/2`
 
 ## Map Functionality
 
