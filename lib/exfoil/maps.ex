@@ -54,8 +54,28 @@ defmodule Exfoil.Maps do
     # Normalize the module name to ensure proper capitalization
     normalized_module_name = Utils.normalize_module_name(module_name)
 
+    # Define extra functions specific to map-based modules
+    extra_functions = [
+      quote do
+        @doc """
+        Returns the original data as a map.
+        """
+        def to_map do
+          unquote(Macro.escape(Map.new(entries)))
+        end
+      end,
+      quote do
+        @doc """
+        Checks if a key exists in this module.
+        """
+        def has_key?(key) do
+          key in unquote(Macro.escape(Enum.map(entries, fn {key, _value} -> key end)))
+        end
+      end
+    ]
+
     # Generate the module
-    module_alias = create_module(normalized_module_name, function_name, entries)
+    module_alias = Utils.create_module(normalized_module_name, function_name, entries, "map", extra_functions)
 
     {:ok, module_alias}
   end
@@ -113,104 +133,4 @@ defmodule Exfoil.Maps do
     String.to_atom("ExfoilMap#{hash}")
   end
 
-  defp create_module(module_name, function_name, entries) do
-    # Generate function clauses for each entry
-    function_clauses = generate_function_clauses(function_name, entries)
-
-    # Convert atom module name to proper module alias
-    module_alias = Module.concat([module_name])
-
-    # Create the module AST
-    module_ast = quote do
-      defmodule unquote(module_alias) do
-        @moduledoc """
-        Dynamically generated module from map.
-        Contains #{unquote(length(entries))} entries.
-        """
-
-        unquote_splicing(function_clauses)
-
-        @doc """
-        Returns all available keys in this module.
-        """
-        def keys do
-          unquote(Macro.escape(Enum.map(entries, fn {key, _value} -> key end)))
-        end
-
-        @doc """
-        Returns all key-value pairs in this module.
-        """
-        def all do
-          unquote(Macro.escape(entries))
-        end
-
-        @doc """
-        Returns the number of entries in this module.
-        """
-        def count do
-          unquote(length(entries))
-        end
-
-        @doc """
-        Returns the original data as a map.
-        """
-        def to_map do
-          unquote(Macro.escape(Map.new(entries)))
-        end
-
-        @doc """
-        Checks if a key exists in this module.
-        """
-        def has_key?(key) do
-          key in unquote(Macro.escape(Enum.map(entries, fn {key, _value} -> key end)))
-        end
-      end
-    end
-
-    # Compile and load the module
-    Code.eval_quoted(module_ast)
-
-    module_alias
-  end
-
-  defp generate_function_clauses(function_name, entries) do
-    # Generate header clause with default argument
-    safe_header = quote do
-      def unquote(function_name)(key, default \\ nil)
-    end
-
-    # Generate function clauses for the safe version (without default declaration)
-    safe_function_clauses = Enum.map(entries, fn {key, value} ->
-      quote do
-        def unquote(function_name)(unquote(key), _default) do
-          {:ok, unquote(Macro.escape(value))}
-        end
-      end
-    end)
-
-    # Generate function clauses for the bang version (returns value or raises)
-    bang_function_name = String.to_atom("#{function_name}!")
-    bang_function_clauses = Enum.map(entries, fn {key, value} ->
-      quote do
-        def unquote(bang_function_name)(unquote(key)) do
-          unquote(Macro.escape(value))
-        end
-      end
-    end)
-
-    # Add catch-all clauses
-    safe_catch_all = quote do
-      def unquote(function_name)(_key, default) do
-        default
-      end
-    end
-
-    bang_catch_all = quote do
-      def unquote(bang_function_name)(key) do
-        raise KeyError, key: key, term: __MODULE__
-      end
-    end
-
-    [safe_header] ++ safe_function_clauses ++ bang_function_clauses ++ [safe_catch_all, bang_catch_all]
-  end
 end
