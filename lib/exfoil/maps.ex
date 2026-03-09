@@ -26,7 +26,7 @@ defmodule Exfoil.Maps do
 
   ## Examples
 
-      # Create a map
+      # Create a map |> :erlang.phash2()
       data = %{a: 1, b: 2, c: "hello"}
 
       # Convert to module
@@ -123,10 +123,10 @@ defmodule Exfoil.Maps do
   # Private functions
 
   defp generate_module_name(map) do
-    # Create a unique module name based on map hash
+    # Create a unique module name based on optimized map hash
+    # Use phash2 directly on the map for better performance than term_to_binary
     hash =
       map
-      |> :erlang.term_to_binary()
       |> :erlang.phash2()
       |> Integer.to_string(16)
 
