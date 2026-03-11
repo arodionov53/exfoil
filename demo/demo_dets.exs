@@ -24,7 +24,7 @@ IO.puts("   ConfigDets.get(:database_host) => #{inspect ConfigDets.get(:database
 IO.puts("   ConfigDets.get(:database_port) => #{inspect ConfigDets.get(:database_port)}")
 IO.puts("   ConfigDets.get(:cache_ttl) => #{inspect ConfigDets.get(:cache_ttl)}")
 IO.puts("   ConfigDets.get(:debug_mode) => #{inspect ConfigDets.get(:debug_mode)}")
-IO.puts("   ConfigDets.get!(:database_port) => #{inspect ConfigDets.get!(:database_port)}")
+IO.puts("   ConfigDets.fetch!(:database_port) => #{inspect ConfigDets.fetch!(:database_port)}")
 
 # Close the DETS table
 :dets.close(table)
