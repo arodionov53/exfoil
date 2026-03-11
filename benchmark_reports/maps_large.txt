@@ -1,0 +1,237 @@
+=== Large Map Benchmark: Exfoil.Maps vs Map ===
+
+Testing with 1000 entries:
+------------------------------
+Sample size: 10 keys
+Operating System: macOS
+CPU Information: Apple M1 Pro
+Number of Available Cores: 10
+Available memory: 32 GB
+Elixir 1.17.2
+Erlang 27.0
+JIT enabled: true
+
+Benchmark suite executing with the following configuration:
+warmup: 2 s
+time: 2 s
+memory time: 1 s
+reduction time: 0 ns
+parallel: 1
+inputs: none specified
+Estimated total run time: 10 s
+Excluding outliers: false
+
+Benchmarking Exfoil.Maps ...
+Benchmarking Map.get/2 ...
+Calculating statistics...
+Formatting results...
+
+Name                  ips        average  deviation         median         99th %
+Exfoil.Maps        8.64 M      115.71 ns  ±3546.21%         125 ns         250 ns
+Map.get/2          7.61 M      131.36 ns  ±2832.97%         125 ns         250 ns
+
+Comparison: 
+Exfoil.Maps        8.64 M
+Map.get/2          7.61 M - 1.14x slower +15.65 ns
+
+Memory usage statistics:
+
+Name           Memory usage
+Exfoil.Maps             0 B
+Map.get/2              32 B - ∞ x memory usage +32 B
+
+**All measurements for memory usage were the same**
+
+Single key access (worst case - last key):
+Operating System: macOS
+CPU Information: Apple M1 Pro
+Number of Available Cores: 10
+Available memory: 32 GB
+Elixir 1.17.2
+Erlang 27.0
+JIT enabled: true
+
+Benchmark suite executing with the following configuration:
+warmup: 2 s
+time: 2 s
+memory time: 0 ns
+reduction time: 0 ns
+parallel: 1
+inputs: none specified
+Estimated total run time: 8 s
+Excluding outliers: false
+
+Benchmarking Exfoil.Maps single ...
+Benchmarking Map.get/2 single ...
+Calculating statistics...
+Formatting results...
+
+Name                         ips        average  deviation         median         99th %
+Exfoil.Maps single       28.10 M       35.59 ns   ±243.77%          42 ns          42 ns
+Map.get/2 single         25.50 M       39.22 ns   ±132.36%          42 ns          42 ns
+
+Comparison: 
+Exfoil.Maps single       28.10 M
+Map.get/2 single         25.50 M - 1.10x slower +3.63 ns
+
+==================================================
+
+Testing with 5000 entries:
+------------------------------
+Sample size: 50 keys
+Operating System: macOS
+CPU Information: Apple M1 Pro
+Number of Available Cores: 10
+Available memory: 32 GB
+Elixir 1.17.2
+Erlang 27.0
+JIT enabled: true
+
+Benchmark suite executing with the following configuration:
+warmup: 2 s
+time: 2 s
+memory time: 1 s
+reduction time: 0 ns
+parallel: 1
+inputs: none specified
+Estimated total run time: 10 s
+Excluding outliers: false
+
+Benchmarking Exfoil.Maps ...
+Benchmarking Map.get/2 ...
+Calculating statistics...
+Formatting results...
+
+Name                  ips        average  deviation         median         99th %
+Exfoil.Maps        2.63 M      380.92 ns   ±591.81%         375 ns         542 ns
+Map.get/2          1.40 M      715.27 ns   ±511.33%         708 ns         875 ns
+
+Comparison: 
+Exfoil.Maps        2.63 M
+Map.get/2          1.40 M - 1.88x slower +334.35 ns
+
+Memory usage statistics:
+
+Name           Memory usage
+Exfoil.Maps             0 B
+Map.get/2              32 B - ∞ x memory usage +32 B
+
+**All measurements for memory usage were the same**
+
+Single key access (worst case - last key):
+Operating System: macOS
+CPU Information: Apple M1 Pro
+Number of Available Cores: 10
+Available memory: 32 GB
+Elixir 1.17.2
+Erlang 27.0
+JIT enabled: true
+
+Benchmark suite executing with the following configuration:
+warmup: 2 s
+time: 2 s
+memory time: 0 ns
+reduction time: 0 ns
+parallel: 1
+inputs: none specified
+Estimated total run time: 8 s
+Excluding outliers: false
+
+Benchmarking Exfoil.Maps single ...
+Benchmarking Map.get/2 single ...
+Calculating statistics...
+Formatting results...
+
+Name                         ips        average  deviation         median         99th %
+Exfoil.Maps single       27.11 M       36.88 ns   ±120.09%          42 ns          42 ns
+Map.get/2 single         20.89 M       47.86 ns   ±310.32%          42 ns          84 ns
+
+Comparison: 
+Exfoil.Maps single       27.11 M
+Map.get/2 single         20.89 M - 1.30x slower +10.98 ns
+
+==================================================
+
+Testing with 10000 entries:
+------------------------------
+Sample size: 100 keys
+Operating System: macOS
+CPU Information: Apple M1 Pro
+Number of Available Cores: 10
+Available memory: 32 GB
+Elixir 1.17.2
+Erlang 27.0
+JIT enabled: true
+
+Benchmark suite executing with the following configuration:
+warmup: 2 s
+time: 2 s
+memory time: 1 s
+reduction time: 0 ns
+parallel: 1
+inputs: none specified
+Estimated total run time: 10 s
+Excluding outliers: false
+
+Benchmarking Exfoil.Maps ...
+Benchmarking Map.get/2 ...
+Calculating statistics...
+Formatting results...
+
+Name                  ips        average  deviation         median         99th %
+Exfoil.Maps        1.32 M        0.76 μs   ±216.38%        0.75 μs        0.92 μs
+Map.get/2          0.75 M        1.34 μs   ±288.24%        1.29 μs        1.54 μs
+
+Comparison: 
+Exfoil.Maps        1.32 M
+Map.get/2          0.75 M - 1.77x slower +0.58 μs
+
+Memory usage statistics:
+
+Name           Memory usage
+Exfoil.Maps             0 B
+Map.get/2              32 B - ∞ x memory usage +32 B
+
+**All measurements for memory usage were the same**
+
+Single key access (worst case - last key):
+Operating System: macOS
+CPU Information: Apple M1 Pro
+Number of Available Cores: 10
+Available memory: 32 GB
+Elixir 1.17.2
+Erlang 27.0
+JIT enabled: true
+
+Benchmark suite executing with the following configuration:
+warmup: 2 s
+time: 2 s
+memory time: 0 ns
+reduction time: 0 ns
+parallel: 1
+inputs: none specified
+Estimated total run time: 8 s
+Excluding outliers: false
+
+Benchmarking Exfoil.Maps single ...
+Benchmarking Map.get/2 single ...
+Calculating statistics...
+Formatting results...
+
+Name                         ips        average  deviation         median         99th %
+Exfoil.Maps single       26.32 M       37.99 ns   ±103.39%          42 ns          42 ns
+Map.get/2 single         25.90 M       38.61 ns    ±82.66%          42 ns          42 ns
+
+Comparison: 
+Exfoil.Maps single       26.32 M
+Map.get/2 single         25.90 M - 1.02x slower +0.62 ns
+
+==================================================
+
+=== Observations ===
+• Elixir maps are highly optimized in modern BEAM versions
+• For small to medium maps (~1000-10000 entries), performance is comparable
+• Exfoil.Maps provides consistent O(1) access regardless of map size
+• Regular maps may show some performance degradation with very large maps
+• The main advantage of Exfoil.Maps is consistent predictable performance
+• Best use cases: static config data, lookup tables, cached API responses

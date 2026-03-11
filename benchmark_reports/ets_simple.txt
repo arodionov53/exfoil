@@ -1,0 +1,21 @@
+=== Quick Exfoil vs ETS Benchmark ===
+
+Generated module: QuickTest
+Testing key retrieval: key_500
+Dataset size: 1000 entries
+
+ETS lookup: 38.22 ns per operation
+Exfoil call: 13.78 ns per operation
+
+Result: Exfoil is 2.77x faster than ETS
+
+Memory usage:
+ETS table: 108176 bytes (105.64 KB)
+Exfoil module: Stored in bytecode (minimal runtime memory)
+** (UndefinedFunctionError) function QuickTest.get!/1 is undefined or private. Did you mean:
+
+      * get/1
+      * get/2
+
+    QuickTest.get!(:key_500)
+    benchmark/simple_benchmark.exs:69: (file)

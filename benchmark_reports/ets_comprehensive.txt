@@ -1,0 +1,233 @@
+=== Exfoil vs ETS Performance Benchmark ===
+
+Running benchmark: Small Dataset (100 entries)
+Dataset size: 100, Lookups: 1000
+Operating System: macOS
+CPU Information: Apple M1 Pro
+Number of Available Cores: 10
+Available memory: 32 GB
+Elixir 1.17.2
+Erlang 27.0
+JIT enabled: true
+
+Benchmark suite executing with the following configuration:
+warmup: 2 s
+time: 5 s
+memory time: 2 s
+reduction time: 0 ns
+parallel: 1
+inputs: none specified
+Estimated total run time: 18 s
+Excluding outliers: false
+
+Benchmarking ETS lookup ...
+Benchmarking Exfoil function call ...
+Calculating statistics...
+Formatting results...
+
+Name                           ips        average  deviation         median         99th %
+Exfoil function call      854.78 K        1.17 μs   ±326.03%        1.13 μs        1.38 μs
+ETS lookup                254.39 K        3.93 μs   ±169.78%        3.71 μs       15.08 μs
+
+Comparison: 
+Exfoil function call      854.78 K
+ETS lookup                254.39 K - 3.36x slower +2.76 μs
+
+Memory usage statistics:
+
+Name                    Memory usage
+Exfoil function call       0.0313 KB
+ETS lookup                   6.07 KB - 194.25x memory usage +6.04 KB
+
+**All measurements for memory usage were the same**
+
+============================================================
+
+Running benchmark: Medium Dataset (1,000 entries)
+Dataset size: 1000, Lookups: 10000
+warning: redefining module BenchmarkTable (current version defined in memory)
+└─ nofile: BenchmarkTable (module)
+
+Operating System: macOS
+CPU Information: Apple M1 Pro
+Number of Available Cores: 10
+Available memory: 32 GB
+Elixir 1.17.2
+Erlang 27.0
+JIT enabled: true
+
+Benchmark suite executing with the following configuration:
+warmup: 2 s
+time: 5 s
+memory time: 2 s
+reduction time: 0 ns
+parallel: 1
+inputs: none specified
+Estimated total run time: 18 s
+Excluding outliers: false
+
+Benchmarking ETS lookup ...
+Benchmarking Exfoil function call ...
+Calculating statistics...
+Formatting results...
+
+Name                           ips        average  deviation         median         99th %
+Exfoil function call       50.41 K       19.84 μs    ±12.20%       19.29 μs       27.17 μs
+ETS lookup                 17.91 K       55.84 μs     ±5.69%       55.08 μs       63.25 μs
+
+Comparison: 
+Exfoil function call       50.41 K
+ETS lookup                 17.91 K - 2.81x slower +36.00 μs
+
+Memory usage statistics:
+
+Name                    Memory usage
+Exfoil function call       0.0313 KB
+ETS lookup                  69.20 KB - 2214.25x memory usage +69.16 KB
+
+**All measurements for memory usage were the same**
+
+============================================================
+
+Running benchmark: Large Dataset (10,000 entries)
+Dataset size: 10000, Lookups: 50000
+warning: redefining module BenchmarkTable (current version defined in memory)
+└─ nofile: BenchmarkTable (module)
+
+Operating System: macOS
+CPU Information: Apple M1 Pro
+Number of Available Cores: 10
+Available memory: 32 GB
+Elixir 1.17.2
+Erlang 27.0
+JIT enabled: true
+
+Benchmark suite executing with the following configuration:
+warmup: 2 s
+time: 5 s
+memory time: 2 s
+reduction time: 0 ns
+parallel: 1
+inputs: none specified
+Estimated total run time: 18 s
+Excluding outliers: false
+
+Benchmarking ETS lookup ...
+Benchmarking Exfoil function call ...
+Calculating statistics...
+Formatting results...
+
+Name                           ips        average  deviation         median         99th %
+Exfoil function call        2.22 K      449.81 μs     ±3.33%      443.63 μs      506.91 μs
+ETS lookup                  1.28 K      780.17 μs    ±12.75%      746.73 μs     1269.86 μs
+
+Comparison: 
+Exfoil function call        2.22 K
+ETS lookup                  1.28 K - 1.73x slower +330.36 μs
+
+Memory usage statistics:
+
+Name                    Memory usage
+Exfoil function call       0.0313 KB
+ETS lookup                 701.45 KB - 22446.25x memory usage +701.41 KB
+
+**All measurements for memory usage were the same**
+
+============================================================
+
+Running benchmark: Complex Data Types (1,000 entries)
+Dataset size: 1000, Lookups: 10000
+warning: redefining module BenchmarkTable (current version defined in memory)
+└─ nofile: BenchmarkTable (module)
+
+Operating System: macOS
+CPU Information: Apple M1 Pro
+Number of Available Cores: 10
+Available memory: 32 GB
+Elixir 1.17.2
+Erlang 27.0
+JIT enabled: true
+
+Benchmark suite executing with the following configuration:
+warmup: 2 s
+time: 5 s
+memory time: 2 s
+reduction time: 0 ns
+parallel: 1
+inputs: none specified
+Estimated total run time: 18 s
+Excluding outliers: false
+
+Benchmarking ETS lookup ...
+Benchmarking Exfoil function call ...
+Calculating statistics...
+Formatting results...
+
+Name                           ips        average  deviation         median         99th %
+Exfoil function call       49.26 K       20.30 μs    ±20.27%          19 μs       33.63 μs
+ETS lookup                 14.88 K       67.22 μs     ±6.78%       66.21 μs       78.49 μs
+
+Comparison: 
+Exfoil function call       49.26 K
+ETS lookup                 14.88 K - 3.31x slower +46.92 μs
+
+Memory usage statistics:
+
+Name                    Memory usage
+Exfoil function call       0.0313 KB
+ETS lookup                  85.18 KB - 2725.75x memory usage +85.15 KB
+
+**All measurements for memory usage were the same**
+
+============================================================
+
+=== Single Key Lookup Comparison ===
+
+Testing single key lookup: key_500
+Comparing 1,000,000 lookups of the same key
+
+Operating System: macOS
+CPU Information: Apple M1 Pro
+Number of Available Cores: 10
+Available memory: 32 GB
+Elixir 1.17.2
+Erlang 27.0
+JIT enabled: true
+
+Benchmark suite executing with the following configuration:
+warmup: 2 s
+time: 5 s
+memory time: 2 s
+reduction time: 0 ns
+parallel: 1
+inputs: none specified
+Estimated total run time: 36 s
+Excluding outliers: false
+
+Benchmarking ETS lookup (safe format) ...
+Benchmarking ETS single lookup ...
+Benchmarking Exfoil bang call ...
+
+10:41:50.269 [error] Task #PID<0.2305278.0> started from #PID<0.94.0> terminating
+** (UndefinedFunctionError) function SingleBenchmarkTable.get!/1 is undefined or private
+    SingleBenchmarkTable.get!(:key_500)
+    (benchee 1.5.0) lib/benchee/benchmark/collect/time.ex:17: Benchee.Benchmark.Collect.Time.collect/1
+    (benchee 1.5.0) lib/benchee/benchmark/runner.ex:356: Benchee.Benchmark.Runner.collect/3
+    (benchee 1.5.0) lib/benchee/benchmark/repeated_measurement.ex:91: Benchee.Benchmark.RepeatedMeasurement.do_determine_n_times/5
+    (benchee 1.5.0) lib/benchee/benchmark/runner.ex:266: Benchee.Benchmark.Runner.measure_runtimes/4
+    (benchee 1.5.0) lib/benchee/benchmark/runner.ex:140: Benchee.Benchmark.Runner.measure_scenario/2
+    (elixir 1.17.2) lib/task/supervised.ex:101: Task.Supervised.invoke_mfa/2
+    (elixir 1.17.2) lib/task/supervised.ex:36: Task.Supervised.reply/4
+Function: #Function<2.121299024/0 in Benchee.Utility.Parallel.map/2>
+    Args: []
+** (EXIT from #PID<0.94.0>) an exception was raised:
+    ** (UndefinedFunctionError) function SingleBenchmarkTable.get!/1 is undefined or private
+        SingleBenchmarkTable.get!(:key_500)
+        (benchee 1.5.0) lib/benchee/benchmark/collect/time.ex:17: Benchee.Benchmark.Collect.Time.collect/1
+        (benchee 1.5.0) lib/benchee/benchmark/runner.ex:356: Benchee.Benchmark.Runner.collect/3
+        (benchee 1.5.0) lib/benchee/benchmark/repeated_measurement.ex:91: Benchee.Benchmark.RepeatedMeasurement.do_determine_n_times/5
+        (benchee 1.5.0) lib/benchee/benchmark/runner.ex:266: Benchee.Benchmark.Runner.measure_runtimes/4
+        (benchee 1.5.0) lib/benchee/benchmark/runner.ex:140: Benchee.Benchmark.Runner.measure_scenario/2
+        (elixir 1.17.2) lib/task/supervised.ex:101: Task.Supervised.invoke_mfa/2
+        (elixir 1.17.2) lib/task/supervised.ex:36: Task.Supervised.reply/4
+

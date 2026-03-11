@@ -1,0 +1,219 @@
+=== Exfoil.Maps Performance Benchmark ===
+
+Comparing Exfoil.Maps generated modules vs regular Map access
+Platform: aarch64-apple-darwin24.6.0
+BEAM: 27
+Elixir: 1.17.2
+
+Starting benchmarks... This may take a few minutes.
+
+Small (10 entries)
+------------------
+Operating System: macOS
+CPU Information: Apple M1 Pro
+Number of Available Cores: 10
+Available memory: 32 GB
+Elixir 1.17.2
+Erlang 27.0
+JIT enabled: true
+
+Benchmark suite executing with the following configuration:
+warmup: 2 s
+time: 3 s
+memory time: 2 s
+reduction time: 0 ns
+parallel: 1
+inputs: none specified
+Estimated total run time: 28 s
+Excluding outliers: false
+
+
+Name                    ips        average  deviation         median         99th %
+Map.get/2           27.58 M       36.26 ns  ±2043.39%          42 ns          83 ns
+Access syntax       27.31 M       36.61 ns  ±2041.84%          42 ns          83 ns
+Exfoil.Maps         23.57 M       42.43 ns  ±6501.54%          42 ns          83 ns
+Map.fetch/2         16.07 M       62.24 ns ±11788.45%          42 ns          83 ns
+
+Comparison: 
+Map.get/2           27.58 M
+Access syntax       27.31 M - 1.01x slower +0.35 ns
+Exfoil.Maps         23.57 M - 1.17x slower +6.17 ns
+Map.fetch/2         16.07 M - 1.72x slower +25.98 ns
+
+Extended statistics: 
+
+Name                  minimum        maximum    sample size                     mode
+Map.get/2                0 ns      653625 ns            1 M                    42 ns
+Access syntax            0 ns      655000 ns            1 M                    42 ns
+Exfoil.Maps              0 ns     2546792 ns            1 M                    42 ns
+Map.fetch/2              0 ns     4753042 ns            1 M                    42 ns
+
+Memory usage statistics:
+
+Name             Memory usage
+Map.get/2                32 B
+Access syntax            32 B - 1.00x memory usage +0 B
+Exfoil.Maps              32 B - 1.00x memory usage +0 B
+Map.fetch/2              56 B - 1.75x memory usage +24 B
+
+**All measurements for memory usage were the same**
+
+Medium (100 entries)
+--------------------
+Operating System: macOS
+CPU Information: Apple M1 Pro
+Number of Available Cores: 10
+Available memory: 32 GB
+Elixir 1.17.2
+Erlang 27.0
+JIT enabled: true
+
+Benchmark suite executing with the following configuration:
+warmup: 2 s
+time: 3 s
+memory time: 2 s
+reduction time: 0 ns
+parallel: 1
+inputs: none specified
+Estimated total run time: 28 s
+Excluding outliers: false
+
+
+Name                    ips        average  deviation         median         99th %
+Map.get/2           10.01 M       99.94 ns   ±464.71%          84 ns         208 ns
+Exfoil.Maps          7.49 M      133.52 ns  ±3397.99%         125 ns         250 ns
+Access syntax        6.94 M      144.15 ns   ±289.40%         125 ns         291 ns
+Map.fetch/2          5.77 M      173.44 ns  ±2683.65%         166 ns         250 ns
+
+Comparison: 
+Map.get/2           10.01 M
+Exfoil.Maps          7.49 M - 1.34x slower +33.58 ns
+Access syntax        6.94 M - 1.44x slower +44.21 ns
+Map.fetch/2          5.77 M - 1.74x slower +73.50 ns
+
+Extended statistics: 
+
+Name                  minimum        maximum    sample size                     mode
+Map.get/2                0 ns      389292 ns            1 M                    83 ns
+Exfoil.Maps             41 ns     4223708 ns            1 M                   125 ns
+Access syntax           42 ns      374208 ns            1 M                   125 ns
+Map.fetch/2             83 ns     3509083 ns            1 M                   167 ns
+
+Memory usage statistics:
+
+Name             Memory usage
+Map.get/2                32 B
+Exfoil.Maps              32 B - 1.00x memory usage +0 B
+Access syntax            32 B - 1.00x memory usage +0 B
+Map.fetch/2             272 B - 8.50x memory usage +240 B
+
+**All measurements for memory usage were the same**
+
+Large (1000 entries)
+--------------------
+Operating System: macOS
+CPU Information: Apple M1 Pro
+Number of Available Cores: 10
+Available memory: 32 GB
+Elixir 1.17.2
+Erlang 27.0
+JIT enabled: true
+
+Benchmark suite executing with the following configuration:
+warmup: 2 s
+time: 3 s
+memory time: 2 s
+reduction time: 0 ns
+parallel: 1
+inputs: none specified
+Estimated total run time: 28 s
+Excluding outliers: false
+
+
+Name                    ips        average  deviation         median         99th %
+Exfoil.Maps        803.91 K        1.24 μs   ±191.65%        1.21 μs        1.46 μs
+Map.get/2          800.26 K        1.25 μs   ±128.97%        1.21 μs        1.46 μs
+Access syntax      574.40 K        1.74 μs    ±67.14%        1.71 μs        1.96 μs
+Map.fetch/2        544.08 K        1.84 μs   ±398.66%        1.75 μs        2.17 μs
+
+Comparison: 
+Exfoil.Maps        803.91 K
+Map.get/2          800.26 K - 1.00x slower +0.00567 μs
+Access syntax      574.40 K - 1.40x slower +0.50 μs
+Map.fetch/2        544.08 K - 1.48x slower +0.59 μs
+
+Extended statistics: 
+
+Name                  minimum        maximum    sample size                     mode
+Exfoil.Maps           1.08 μs     2110.71 μs            1 M                  1.21 μs
+Map.get/2             1.08 μs     1048.13 μs            1 M                  1.21 μs
+Access syntax         1.58 μs     1061.08 μs            1 M                  1.71 μs
+Map.fetch/2           1.58 μs     4873.67 μs            1 M                  1.75 μs
+
+Memory usage statistics:
+
+Name             Memory usage
+Exfoil.Maps              32 B
+Map.get/2                32 B - 1.00x memory usage +0 B
+Access syntax            32 B - 1.00x memory usage +0 B
+Map.fetch/2            2432 B - 76.00x memory usage +2400 B
+
+**All measurements for memory usage were the same**
+
+Extra Large (10k entries)
+-------------------------
+Operating System: macOS
+CPU Information: Apple M1 Pro
+Number of Available Cores: 10
+Available memory: 32 GB
+Elixir 1.17.2
+Erlang 27.0
+JIT enabled: true
+
+Benchmark suite executing with the following configuration:
+warmup: 2 s
+time: 3 s
+memory time: 2 s
+reduction time: 0 ns
+parallel: 1
+inputs: none specified
+Estimated total run time: 28 s
+Excluding outliers: false
+
+
+Name                    ips        average  deviation         median         99th %
+Map.get/2           74.90 K       13.35 μs     ±8.97%       13.17 μs       14.63 μs
+Map.fetch/2         56.78 K       17.61 μs    ±20.59%       17.29 μs       19.96 μs
+Access syntax       52.41 K       19.08 μs    ±68.55%       18.54 μs       22.12 μs
+Exfoil.Maps         51.20 K       19.53 μs    ±14.64%       18.83 μs          29 μs
+
+Comparison: 
+Map.get/2           74.90 K
+Map.fetch/2         56.78 K - 1.32x slower +4.26 μs
+Access syntax       52.41 K - 1.43x slower +5.73 μs
+Exfoil.Maps         51.20 K - 1.46x slower +6.18 μs
+
+Extended statistics: 
+
+Name                  minimum        maximum    sample size                     mode
+Map.get/2            12.92 μs      339.04 μs       221.63 K                 13.08 μs
+Map.fetch/2             17 μs      908.13 μs       168.74 K                 17.25 μs
+Access syntax        18.21 μs     3893.54 μs       155.62 K                 18.38 μs
+Exfoil.Maps          16.63 μs      159.88 μs       151.64 K                    18 μs
+
+Memory usage statistics:
+
+Name             Memory usage
+Map.get/2                32 B
+Map.fetch/2           24032 B - 751.00x memory usage +24000 B
+Access syntax            32 B - 1.00x memory usage +0 B
+Exfoil.Maps              32 B - 1.00x memory usage +0 B
+
+**All measurements for memory usage were the same**
+
+Memory Usage Comparison
+======================
+** (ArithmeticError) bad argument in arithmetic expression: :memory - :memory
+    :erlang.-(:memory, :memory)
+    benchmark/benchmark_maps.exs:108: anonymous fn/1 in :elixir_compiler_2.__FILE__/1
+    benchmark/benchmark_maps.exs:302: (file)
