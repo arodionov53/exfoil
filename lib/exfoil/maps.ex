@@ -5,13 +5,17 @@ defmodule Exfoil.Maps do
   Exfoil.Maps converts Elixir maps into dynamically generated modules with function calls.
 
   For example, a map `%{a: 1, b: 2}` will be converted to a dynamically created module
-  with functions:
-  - `YourModule.get(:a)` which returns `{:ok, 1}`
-  - `YourModule.get(:b)` which returns `{:ok, 2}`
+  with functions following the Elixir Map API:
+  - `YourModule.fetch(:a)` which returns `{:ok, 1}`
+  - `YourModule.fetch(:b)` which returns `{:ok, 2}`
+  - `YourModule.fetch(:missing)` which returns `:error`
+  - `YourModule.fetch!(:a)` which returns `1`
+  - `YourModule.fetch!(:b)` which returns `2`
+  - `YourModule.fetch!(:missing)` which raises a `KeyError`
+  - `YourModule.get(:a)` which returns `1`
+  - `YourModule.get(:a, :default)` which returns `1`
   - `YourModule.get(:missing)` which returns `nil`
   - `YourModule.get(:missing, :default)` which returns `:default`
-  - `YourModule.get!(:a)` which returns `1`
-  - `YourModule.get!(:missing)` which raises a `KeyError`
   """
 
   @doc """
@@ -22,7 +26,6 @@ defmodule Exfoil.Maps do
   - `map` - The map to convert
   - `module_name` - The name for the generated module (atom)
   - `opts` - Optional keyword list with configuration options
-    - `:function_name` - Custom function name (defaults to `:get`)
 
   ## Examples
 
@@ -32,22 +35,25 @@ defmodule Exfoil.Maps do
       # Convert to module
       Exfoil.Maps.convert(data, :MyData)
 
-      # Now you can use the generated module
-      MyData.get(:a)   # => {:ok, 1}
-      MyData.get(:b)   # => {:ok, 2}
-      MyData.get(:c)   # => {:ok, "hello"}
+      # Now you can use the generated module with Map API
+      MyData.fetch(:a)   # => {:ok, 1}
+      MyData.fetch(:b)   # => {:ok, 2}
+      MyData.fetch(:c)   # => {:ok, "hello"}
+      MyData.fetch(:d)   # => :error
+
+      MyData.fetch!(:a)  # => 1
+      MyData.fetch!(:b)  # => 2
+      MyData.fetch!(:c)  # => "hello"
+      MyData.fetch!(:d)  # => raises KeyError
+
+      MyData.get(:a)   # => 1
+      MyData.get(:b)   # => 2
+      MyData.get(:c)   # => "hello"
       MyData.get(:d)   # => nil
       MyData.get(:d, :default)   # => :default
 
-      MyData.get!(:a)  # => 1
-      MyData.get!(:b)  # => 2
-      MyData.get!(:c)  # => "hello"
-      MyData.get!(:d)  # => raises KeyError
-
   """
-  def convert(map, module_name, opts \\ []) when is_map(map) and is_atom(module_name) do
-    function_name = Utils.normalize_function_name(opts[:function_name] || :get)
-
+  def convert(map, module_name, _opts \\ []) when is_map(map) and is_atom(module_name) do
     # Convert map to list of key-value tuples for consistency with ETS format
     entries = Map.to_list(map)
 
@@ -71,11 +77,19 @@ defmodule Exfoil.Maps do
         def has_key?(key) do
           key in unquote(Macro.escape(Enum.map(entries, fn {key, _value} -> key end)))
         end
+      end,
+      quote do
+        @doc """
+        Returns a list of all values.
+        """
+        def values do
+          unquote(Macro.escape(Enum.map(entries, fn {_key, value} -> value end)))
+        end
       end
     ]
 
     # Generate the module
-    module_alias = Utils.create_module(normalized_module_name, function_name, entries, "map", extra_functions)
+    module_alias = Utils.create_module(normalized_module_name, entries, "map", extra_functions)
 
     {:ok, module_alias}
   end
@@ -89,8 +103,10 @@ defmodule Exfoil.Maps do
       data = %{key: "value"}
 
       module = Exfoil.Maps.convert!(data, :MyModule)
-      module.get(:key)   # => {:ok, "value"}
-      module.get!(:key)  # => "value"
+      module.fetch(:key)   # => {:ok, "value"}
+      module.fetch!(:key)  # => "value"
+      module.get(:key)   # => "value"
+      module.get(:key, :default)  # => "value"
 
   """
   def convert!(map, module_name, opts \\ []) do
@@ -111,8 +127,10 @@ defmodule Exfoil.Maps do
       {:ok, module_name} = Exfoil.Maps.convert_with_auto_name(data)
 
       # Use the returned module name
-      module_name.get(:a)   # => {:ok, 1}
-      module_name.get!(:a)  # => 1
+      module_name.fetch(:a)   # => {:ok, 1}
+      module_name.fetch!(:a)  # => 1
+      module_name.get(:a)   # => 1
+      module_name.get(:a, :default)  # => 1
 
   """
   def convert_with_auto_name(map, opts \\ []) when is_map(map) do

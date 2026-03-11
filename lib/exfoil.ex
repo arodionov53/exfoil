@@ -5,13 +5,17 @@ defmodule Exfoil do
   Exfoil converts ETS table entries into dynamically generated modules with function calls.
 
   For example, an ETS table named `tab1` containing key-value pairs `{:a, 1}` and `{:b, 2}`
-  will be converted to a dynamically created module `Tab1` with functions:
-  - `Tab1.get(:a)` which returns `{:ok, 1}`
-  - `Tab1.get(:b)` which returns `{:ok, 2}`
+  will be converted to a dynamically created module `Tab1` with functions following the Elixir Map API:
+  - `Tab1.fetch(:a)` which returns `{:ok, 1}`
+  - `Tab1.fetch(:b)` which returns `{:ok, 2}`
+  - `Tab1.fetch(:missing)` which returns `:error`
+  - `Tab1.fetch!(:a)` which returns `1`
+  - `Tab1.fetch!(:b)` which returns `2`
+  - `Tab1.fetch!(:missing)` which raises a `KeyError`
+  - `Tab1.get(:a)` which returns `1`
+  - `Tab1.get(:a, :default)` which returns `1`
   - `Tab1.get(:missing)` which returns `nil`
   - `Tab1.get(:missing, :default)` which returns `:default`
-  - `Tab1.get!(:a)` which returns `1`
-  - `Tab1.get!(:missing)` which raises a `KeyError`
 
   ## Additional Functionality
 
@@ -26,7 +30,6 @@ defmodule Exfoil do
   - `table_name_or_ref` - The name of a named ETS table (atom) or a reference to an unnamed table
   - `opts` - Optional keyword list with configuration options
     - `:module_name` - Custom module name (defaults to capitalized table name for named tables or auto-generated for unnamed)
-    - `:function_name` - Custom function name (defaults to `:get`)
 
   ## Examples
 
@@ -39,17 +42,22 @@ defmodule Exfoil do
       # Convert to module
       Exfoil.convert(:tab1)
 
-      # Now you can use the generated module
-      Tab1.get(:a)   # => {:ok, 1}
-      Tab1.get(:b)   # => {:ok, 2}
-      Tab1.get(:c)   # => {:ok, "hello"}
+      # Now you can use the generated module with Map API
+      Tab1.fetch(:a)   # => {:ok, 1}
+      Tab1.fetch(:b)   # => {:ok, 2}
+      Tab1.fetch(:c)   # => {:ok, "hello"}
+      Tab1.fetch(:d)   # => :error
+
+      Tab1.fetch!(:a)  # => 1
+      Tab1.fetch!(:b)  # => 2
+      Tab1.fetch!(:c)  # => "hello"
+      Tab1.fetch!(:d)  # => raises KeyError
+
+      Tab1.get(:a)   # => 1
+      Tab1.get(:b)   # => 2
+      Tab1.get(:c)   # => "hello"
       Tab1.get(:d)   # => nil
       Tab1.get(:d, :default)   # => :default
-
-      Tab1.get!(:a)  # => 1
-      Tab1.get!(:b)  # => 2
-      Tab1.get!(:c)  # => "hello"
-      Tab1.get!(:d)  # => raises KeyError
 
   """
   def convert(table_name_or_ref, opts \\ []) do
@@ -64,13 +72,12 @@ defmodule Exfoil do
         else
           default_module_name_for_table(table_name_or_ref, info)
         end
-        function_name = Utils.normalize_function_name(opts[:function_name] || :get)
 
         # Get all entries from the ETS table
         entries = :ets.tab2list(table_name_or_ref)
 
         # Generate the module
-        module_alias = Utils.create_module(module_name, function_name, entries, "ETS table")
+        module_alias = Utils.create_module(module_name, entries, "ETS table")
 
         {:ok, module_alias}
     end
@@ -86,8 +93,10 @@ defmodule Exfoil do
       :ets.insert(:tab1, {:key, "value"})
 
       module = Exfoil.convert!(:tab1)
-      module.get(:key)   # => {:ok, "value"}
-      module.get!(:key)  # => "value"
+      module.fetch(:key)   # => {:ok, "value"}
+      module.fetch!(:key)  # => "value"
+      module.get(:key)   # => "value"
+      module.get(:key, :default)  # => "value"
 
   """
   def convert!(table_name, opts \\ []) do

@@ -33,16 +33,16 @@ defmodule Exfoil.DetsTest do
       assert module_name == TestDets
 
       # Test the generated functions
-      assert TestDets.get(:a) == {:ok, 1}
-      assert TestDets.get(:b) == {:ok, 2}
-      assert TestDets.get(:c) == {:ok, "hello"}
+      assert TestDets.fetch(:a) == {:ok, 1}
+      assert TestDets.fetch(:b) == {:ok, 2}
+      assert TestDets.fetch(:c) == {:ok, "hello"}
       assert TestDets.get(:nonexistent) == nil
 
       # Test bang versions
-      assert TestDets.get!(:a) == 1
-      assert TestDets.get!(:b) == 2
-      assert TestDets.get!(:c) == "hello"
-      assert_raise KeyError, fn -> TestDets.get!(:nonexistent) end
+      assert TestDets.fetch!(:a) == 1
+      assert TestDets.fetch!(:b) == 2
+      assert TestDets.fetch!(:c) == "hello"
+      assert_raise KeyError, fn -> TestDets.fetch!(:nonexistent) end
 
       # Close the table
       :dets.close(table)
@@ -61,17 +61,17 @@ defmodule Exfoil.DetsTest do
       assert {:ok, module_name} = Dets.convert(:complex_dets)
       assert module_name == ComplexDets
 
-      assert ComplexDets.get(:string) == {:ok, "hello"}
-      assert ComplexDets.get(:list) == {:ok, [1, 2, 3]}
-      assert ComplexDets.get(:map) == {:ok, %{key: "value"}}
-      assert ComplexDets.get(:tuple) == {:ok, {:nested, :tuple}}
-      assert ComplexDets.get(:atom) == {:ok, :test_atom}
-      assert ComplexDets.get(:number) == {:ok, 42.5}
+      assert ComplexDets.fetch(:string) == {:ok, "hello"}
+      assert ComplexDets.fetch(:list) == {:ok, [1, 2, 3]}
+      assert ComplexDets.fetch(:map) == {:ok, %{key: "value"}}
+      assert ComplexDets.fetch(:tuple) == {:ok, {:nested, :tuple}}
+      assert ComplexDets.fetch(:atom) == {:ok, :test_atom}
+      assert ComplexDets.fetch(:number) == {:ok, 42.5}
 
       # Test bang versions
-      assert ComplexDets.get!(:string) == "hello"
-      assert ComplexDets.get!(:list) == [1, 2, 3]
-      assert ComplexDets.get!(:map) == %{key: "value"}
+      assert ComplexDets.fetch!(:string) == "hello"
+      assert ComplexDets.fetch!(:list) == [1, 2, 3]
+      assert ComplexDets.fetch!(:map) == %{key: "value"}
 
       :dets.close(table)
     end
@@ -96,25 +96,8 @@ defmodule Exfoil.DetsTest do
       assert {:ok, module_name} = Dets.convert(:custom_dets, module_name: :CustomModule)
       assert module_name == CustomModule
 
-      assert CustomModule.get(:key) == {:ok, "value"}
-      assert CustomModule.get!(:key) == "value"
-
-      :dets.close(table)
-    end
-
-    test "supports custom function name", %{file_path: file_path} do
-      {:ok, table} = :dets.open_file(:func_dets, [{:file, String.to_charlist(file_path)}, {:type, :set}])
-      :dets.insert(table, {:key, "value"})
-
-      assert {:ok, module_name} = Dets.convert(:func_dets, function_name: :fetch)
-      assert module_name == FuncDets
-
-      assert FuncDets.fetch(:key) == {:ok, "value"}
-      assert FuncDets.fetch(:nonexistent) == nil
-
-      # Test bang version with custom function name
-      assert FuncDets.fetch!(:key) == "value"
-      assert_raise KeyError, fn -> FuncDets.fetch!(:nonexistent) end
+      assert CustomModule.fetch(:key) == {:ok, "value"}
+      assert CustomModule.fetch!(:key) == "value"
 
       :dets.close(table)
     end
@@ -135,8 +118,35 @@ defmodule Exfoil.DetsTest do
       assert DefaultDets.get(:missing, %{not: "found"}) == %{not: "found"}
 
       # Existing keys still return {:ok, value}
-      assert DefaultDets.get(:exists) == {:ok, "value"}
-      assert DefaultDets.get(:exists, :default) == {:ok, "value"}
+      assert DefaultDets.fetch(:exists) == {:ok, "value"}
+      assert DefaultDets.get(:exists) == "value"
+
+      :dets.close(table)
+    end
+
+    test "Map API conformance" do
+      # This test explicitly verifies the Map API behavior
+      {:ok, table} = :dets.open_file(:api_test, [{:type, :set}])
+      :dets.insert(table, {:key, "value"})
+      :dets.insert(table, {:number, 42})
+
+      {:ok, ApiTest} = Dets.convert(:api_test)
+
+      # fetch/1 returns {:ok, value} or :error
+      assert ApiTest.fetch(:key) == {:ok, "value"}
+      assert ApiTest.fetch(:number) == {:ok, 42}
+      assert ApiTest.fetch(:missing) == :error
+
+      # fetch!/1 returns value or raises
+      assert ApiTest.fetch!(:key) == "value"
+      assert ApiTest.fetch!(:number) == 42
+      assert_raise KeyError, fn -> ApiTest.fetch!(:missing) end
+
+      # get/2 returns value or default (default is nil)
+      assert ApiTest.get(:key) == "value"
+      assert ApiTest.get(:number) == 42
+      assert ApiTest.get(:missing) == nil
+      assert ApiTest.get(:missing, :default) == :default
 
       :dets.close(table)
     end
@@ -149,8 +159,8 @@ defmodule Exfoil.DetsTest do
 
       assert module_name = Dets.convert!(:bang_dets)
       assert module_name == BangDets
-      assert BangDets.get(:key) == {:ok, "value"}
-      assert BangDets.get!(:key) == "value"
+      assert BangDets.fetch(:key) == {:ok, "value"}
+      assert BangDets.fetch!(:key) == "value"
 
       :dets.close(table)
     end
@@ -176,8 +186,8 @@ defmodule Exfoil.DetsTest do
                                                 close_after: true)
 
       assert module == FileDets
-      assert FileDets.get(:a) == {:ok, 1}
-      assert FileDets.get(:b) == {:ok, 2}
+      assert FileDets.fetch(:a) == {:ok, 1}
+      assert FileDets.fetch(:b) == {:ok, 2}
 
       # Verify the table was closed (should not be accessible)
       assert :dets.info(:file_dets) == :undefined
@@ -255,8 +265,8 @@ defmodule Exfoil.DetsTest do
 
         {:ok, module} = Dets.convert(table_name)
 
-        assert module.get(:key) == {:ok, "value_#{type}"}
-        assert module.get!(:key) == "value_#{type}"
+        assert module.fetch(:key) == {:ok, "value_#{type}"}
+        assert module.fetch!(:key) == "value_#{type}"
 
         :dets.close(table)
         File.rm(file)
@@ -273,8 +283,8 @@ defmodule Exfoil.DetsTest do
       {:ok, BagDets} = Dets.convert(:bag_dets)
 
       # Only the first value is returned (same as ETS behavior)
-      assert BagDets.get(:a) == {:ok, 1}
-      assert BagDets.get(:b) == {:ok, 3}
+      assert BagDets.fetch(:a) == {:ok, 1}
+      assert BagDets.fetch(:b) == {:ok, 3}
 
       # all() shows all entries
       all_entries = BagDets.all()
@@ -300,13 +310,13 @@ defmodule Exfoil.DetsTest do
       {:ok, PersistDets} = Dets.convert(:persist_dets)
 
       # Test data persistence
-      assert PersistDets.get(:config) == {:ok, %{host: "localhost", port: 5432}}
-      assert PersistDets.get(:users) == {:ok, ["alice", "bob", "charlie"]}
-      assert PersistDets.get(:active) == {:ok, true}
+      assert PersistDets.fetch(:config) == {:ok, %{host: "localhost", port: 5432}}
+      assert PersistDets.fetch(:users) == {:ok, ["alice", "bob", "charlie"]}
+      assert PersistDets.fetch(:active) == {:ok, true}
 
-      assert PersistDets.get!(:config) == %{host: "localhost", port: 5432}
-      assert PersistDets.get!(:users) == ["alice", "bob", "charlie"]
-      assert PersistDets.get!(:active) == true
+      assert PersistDets.fetch!(:config) == %{host: "localhost", port: 5432}
+      assert PersistDets.fetch!(:users) == ["alice", "bob", "charlie"]
+      assert PersistDets.fetch!(:active) == true
 
       # Helper functions
       assert PersistDets.count() == 3

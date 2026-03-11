@@ -17,16 +17,16 @@ defmodule UnnamedTablesTest do
       assert String.starts_with?(module_name, "Elixir.ExfoilTable")
 
       # Functions should work normally
-      assert module.get(:a) == {:ok, 1}
-      assert module.get(:b) == {:ok, 2}
-      assert module.get(:c) == {:ok, 3}
+      assert module.fetch(:a) == {:ok, 1}
+      assert module.fetch(:b) == {:ok, 2}
+      assert module.fetch(:c) == {:ok, 3}
       assert module.get(:missing) == nil
       assert module.get(:missing, :default) == :default
 
       # Bang functions
-      assert module.get!(:a) == 1
-      assert module.get!(:b) == 2
-      assert_raise KeyError, fn -> module.get!(:missing) end
+      assert module.fetch!(:a) == 1
+      assert module.fetch!(:b) == 2
+      assert_raise KeyError, fn -> module.fetch!(:missing) end
 
       # Helper functions
       assert module.count() == 3
@@ -42,8 +42,8 @@ defmodule UnnamedTablesTest do
 
       {:ok, MyCustomModule} = Exfoil.convert(table_ref, module_name: :MyCustomModule)
 
-      assert MyCustomModule.get(:key) == {:ok, "value"}
-      assert MyCustomModule.get!(:key) == "value"
+      assert MyCustomModule.fetch(:key) == {:ok, "value"}
+      assert MyCustomModule.fetch!(:key) == "value"
     end
 
     test "works with different table types when unnamed" do
@@ -54,8 +54,8 @@ defmodule UnnamedTablesTest do
 
         {:ok, module} = Exfoil.convert(table_ref)
 
-        assert module.get(:key) == {:ok, "value_#{table_type}"}
-        assert module.get!(:key) == "value_#{table_type}"
+        assert module.fetch(:key) == {:ok, "value_#{table_type}"}
+        assert module.fetch!(:key) == "value_#{table_type}"
       end)
     end
 
@@ -74,10 +74,10 @@ defmodule UnnamedTablesTest do
       assert module1 != module2
 
       # Each module should have its own data
-      assert module1.get(:a) == {:ok, 1}
+      assert module1.fetch(:a) == {:ok, 1}
       assert module1.get(:b) == nil
 
-      assert module2.get(:b) == {:ok, 2}
+      assert module2.fetch(:b) == {:ok, 2}
       assert module2.get(:a) == nil
     end
 
@@ -89,8 +89,8 @@ defmodule UnnamedTablesTest do
 
       {:ok, NamedTableTest} = Exfoil.convert(:named_table_test)
 
-      assert NamedTableTest.get(:x) == {:ok, 10}
-      assert NamedTableTest.get(:y) == {:ok, 20}
+      assert NamedTableTest.fetch(:x) == {:ok, 10}
+      assert NamedTableTest.fetch(:y) == {:ok, 20}
     end
 
     test "handles complex data in unnamed tables" do
@@ -102,15 +102,15 @@ defmodule UnnamedTablesTest do
 
       {:ok, module} = Exfoil.convert(table_ref)
 
-      assert module.get(:map) == {:ok, %{name: "Alice", age: 30}}
-      assert module.get(:list) == {:ok, [1, 2, 3, 4, 5]}
-      assert module.get(:tuple) == {:ok, {:ok, "result"}}
-      assert module.get(:nested) == {:ok, %{data: %{value: 42}}}
+      assert module.fetch(:map) == {:ok, %{name: "Alice", age: 30}}
+      assert module.fetch(:list) == {:ok, [1, 2, 3, 4, 5]}
+      assert module.fetch(:tuple) == {:ok, {:ok, "result"}}
+      assert module.fetch(:nested) == {:ok, %{data: %{value: 42}}}
 
-      assert module.get!(:map) == %{name: "Alice", age: 30}
-      assert module.get!(:list) == [1, 2, 3, 4, 5]
-      assert module.get!(:tuple) == {:ok, "result"}
-      assert module.get!(:nested) == %{data: %{value: 42}}
+      assert module.fetch!(:map) == %{name: "Alice", age: 30}
+      assert module.fetch!(:list) == [1, 2, 3, 4, 5]
+      assert module.fetch!(:tuple) == {:ok, "result"}
+      assert module.fetch!(:nested) == %{data: %{value: 42}}
     end
   end
 end

@@ -20,16 +20,22 @@ defmodule Exfoil.Dets do
       # Convert to module
       {:ok, MyDets} = Exfoil.Dets.convert(:my_dets)
 
-      # Now you can use the generated module
-      MyDets.get(:a)   # => {:ok, 1}
-      MyDets.get(:b)   # => {:ok, 2}
-      MyDets.get(:c)   # => {:ok, "hello"}
-      MyDets.get(:d)   # => nil
+      # Now you can use the generated module with Map API
+      MyDets.fetch(:a)   # => {:ok, 1}
+      MyDets.fetch(:b)   # => {:ok, 2}
+      MyDets.fetch(:c)   # => {:ok, "hello"}
+      MyDets.fetch(:d)   # => :error
 
-      MyDets.get!(:a)  # => 1
-      MyDets.get!(:b)  # => 2
-      MyDets.get!(:c)  # => "hello"
-      MyDets.get!(:d)  # => raises KeyError
+      MyDets.fetch!(:a)  # => 1
+      MyDets.fetch!(:b)  # => 2
+      MyDets.fetch!(:c)  # => "hello"
+      MyDets.fetch!(:d)  # => raises KeyError
+
+      MyDets.get(:a)   # => 1
+      MyDets.get(:b)   # => 2
+      MyDets.get(:c)   # => "hello"
+      MyDets.get(:d)   # => nil
+      MyDets.get(:d, :default)   # => :default
 
       # Don't forget to close the DETS table when done
       :dets.close(table)
@@ -50,7 +56,6 @@ defmodule Exfoil.Dets do
   - `table_name` - The name of the DETS table (atom)
   - `opts` - Optional keyword list with configuration options
     - `:module_name` - Custom module name (defaults to capitalized table name)
-    - `:function_name` - Custom function name (defaults to `:get`)
 
   ## Examples
 
@@ -60,8 +65,10 @@ defmodule Exfoil.Dets do
 
       {:ok, ConfigDets} = Exfoil.Dets.convert(:config_dets)
 
-      ConfigDets.get(:host)   # => {:ok, "localhost"}
-      ConfigDets.get(:port)   # => {:ok, 5432}
+      ConfigDets.fetch(:host)   # => {:ok, "localhost"}
+      ConfigDets.fetch(:port)   # => {:ok, 5432}
+      ConfigDets.get(:host)   # => "localhost"
+      ConfigDets.get(:port)   # => 5432
 
       :dets.close(table)
 
@@ -78,13 +85,12 @@ defmodule Exfoil.Dets do
         else
           default_module_name(table_name)
         end
-        function_name = Utils.normalize_function_name(opts[:function_name] || :get)
 
         # Get all entries from the DETS table
         entries = :dets.match_object(table_name, :_)
 
         # Generate the module
-        module_alias = Utils.create_module(module_name, function_name, entries, "DETS table")
+        module_alias = Utils.create_module(module_name, entries, "DETS table")
 
         {:ok, module_alias}
     end
@@ -100,8 +106,10 @@ defmodule Exfoil.Dets do
       :dets.insert(table, {:key, "value"})
 
       module = Exfoil.Dets.convert!(:my_dets)
-      module.get(:key)   # => {:ok, "value"}
-      module.get!(:key)  # => "value"
+      module.fetch(:key)   # => {:ok, "value"}
+      module.fetch!(:key)  # => "value"
+      module.get(:key)   # => "value"
+      module.get(:key, :default)  # => "value"
 
       :dets.close(table)
 
@@ -124,7 +132,6 @@ defmodule Exfoil.Dets do
   - `table_name` - Name for the DETS table
   - `opts` - Options including:
     - `:module_name` - Custom module name
-    - `:function_name` - Custom function name
     - `:close_after` - Whether to close the DETS table after conversion (default: false)
     - `:dets_opts` - Options to pass to :dets.open_file
 
@@ -134,7 +141,8 @@ defmodule Exfoil.Dets do
                                                 module_name: :Config,
                                                 close_after: true)
 
-      Config.get(:setting)  # => {:ok, "value"}
+      Config.fetch(:setting)  # => {:ok, "value"}
+      Config.get(:setting)  # => "value"
 
   """
   def convert_file(file_path, table_name, opts \\ []) do

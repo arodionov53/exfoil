@@ -17,16 +17,16 @@ IO.puts("   Generated module: #{inspect(module_name)}")
 
 # Test the generated functions
 IO.puts("\n3. Testing the generated Tab1 module:")
-IO.puts("   Tab1.get(:a) = #{inspect(Tab1.get(:a))}")
-IO.puts("   Tab1.get(:b) = #{inspect(Tab1.get(:b))}")
-IO.puts("   Tab1.get(:nonexistent) = #{inspect(Tab1.get(:nonexistent))}")
+IO.puts("   Tab1.fetch(:a) = #{inspect(Tab1.fetch(:a))}")
+IO.puts("   Tab1.fetch(:b) = #{inspect(Tab1.fetch(:b))}")
+IO.puts("   Tab1.fetch(:nonexistent) = #{inspect(Tab1.fetch(:nonexistent))}")
 
 IO.puts("\n3b. Testing the bang version functions:")
-IO.puts("   Tab1.get!(:a) = #{inspect(Tab1.get!(:a))}")
-IO.puts("   Tab1.get!(:b) = #{inspect(Tab1.get!(:b))}")
-IO.write("   Tab1.get!(:nonexistent) = ")
+IO.puts("   Tab1.fetch!(:a) = #{inspect(Tab1.fetch!(:a))}")
+IO.puts("   Tab1.fetch!(:b) = #{inspect(Tab1.fetch!(:b))}")
+IO.write("   Tab1.fetch!(:nonexistent) = ")
 try do
-  IO.puts("#{inspect(Tab1.get!(:nonexistent))}")
+  IO.puts("#{inspect(Tab1.fetch!(:nonexistent))}")
 rescue
   e in KeyError ->
     IO.puts("KeyError: #{Exception.message(e)}")
@@ -52,36 +52,35 @@ IO.puts("\n5. Creating complex ETS table with various data types")
 IO.puts("   Generated module: #{inspect(complex_module)}")
 
 IO.puts("\n6. Testing complex data retrieval:")
-IO.puts("   ComplexData.get(:string) = #{inspect(ComplexData.get(:string))}")
-IO.puts("   ComplexData.get(:list) = #{inspect(ComplexData.get(:list))}")
-IO.puts("   ComplexData.get(:map) = #{inspect(ComplexData.get(:map))}")
-IO.puts("   ComplexData.get(:tuple) = #{inspect(ComplexData.get(:tuple))}")
+IO.puts("   ComplexData.fetch(:string) = #{inspect(ComplexData.fetch(:string))}")
+IO.puts("   ComplexData.fetch(:list) = #{inspect(ComplexData.fetch(:list))}")
+IO.puts("   ComplexData.fetch(:map) = #{inspect(ComplexData.fetch(:map))}")
+IO.puts("   ComplexData.fetch(:tuple) = #{inspect(ComplexData.fetch(:tuple))}")
 
 IO.puts("\n6b. Testing bang versions for direct access:")
-IO.puts("   ComplexData.get!(:string) = #{inspect(ComplexData.get!(:string))}")
-IO.puts("   ComplexData.get!(:list) = #{inspect(ComplexData.get!(:list))}")
-IO.puts("   ComplexData.get!(:map) = #{inspect(ComplexData.get!(:map))}")
-IO.puts("   ComplexData.get!(:tuple) = #{inspect(ComplexData.get!(:tuple))}")
+IO.puts("   ComplexData.fetch!(:string) = #{inspect(ComplexData.fetch!(:string))}")
+IO.puts("   ComplexData.fetch!(:list) = #{inspect(ComplexData.fetch!(:list))}")
+IO.puts("   ComplexData.fetch!(:map) = #{inspect(ComplexData.fetch!(:map))}")
+IO.puts("   ComplexData.fetch!(:tuple) = #{inspect(ComplexData.fetch!(:tuple))}")
 
 # Demo with custom options
 IO.puts("\n=== Custom Options Demo ===")
 
-IO.puts("\n7. Creating table with custom module name and function name")
+IO.puts("\n7. Creating table with custom module name")
 :ets.new(:custom_table, [:named_table])
 :ets.insert(:custom_table, {:setting1, "value1"})
 :ets.insert(:custom_table, {:setting2, "value2"})
 
 {:ok, custom_module} = Exfoil.convert(:custom_table,
-                                      module_name: :MyConfig,
-                                      function_name: :lookup)
+                                      module_name: :MyConfig)
 
 IO.puts("   Generated module: #{inspect(custom_module)}")
-IO.puts("   MyConfig.lookup(:setting1) = #{inspect(MyConfig.lookup(:setting1))}")
-IO.puts("   MyConfig.lookup(:setting2) = #{inspect(MyConfig.lookup(:setting2))}")
+IO.puts("   MyConfig.fetch(:setting1) = #{inspect(MyConfig.fetch(:setting1))}")
+IO.puts("   MyConfig.fetch(:setting2) = #{inspect(MyConfig.fetch(:setting2))}")
 
 IO.puts("\n7b. Testing custom bang functions:")
-IO.puts("   MyConfig.lookup!(:setting1) = #{inspect(MyConfig.lookup!(:setting1))}")
-IO.puts("   MyConfig.lookup!(:setting2) = #{inspect(MyConfig.lookup!(:setting2))}")
+IO.puts("   MyConfig.fetch!(:setting1) = #{inspect(MyConfig.fetch!(:setting1))}")
+IO.puts("   MyConfig.fetch!(:setting2) = #{inspect(MyConfig.fetch!(:setting2))}")
 
 IO.puts("\n=== Demo Complete ===")
 

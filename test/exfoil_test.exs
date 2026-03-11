@@ -26,14 +26,19 @@ defmodule ExfoilTest do
       assert module_name == TestTab
 
       # Test the generated functions
-      assert TestTab.get(:a) == {:ok, 1}
-      assert TestTab.get(:b) == {:ok, 2}
+      assert TestTab.fetch(:a) == {:ok, 1}
+      assert TestTab.fetch(:b) == {:ok, 2}
+      assert TestTab.fetch(:nonexistent) == :error
+
+      assert TestTab.get(:a) == 1
+      assert TestTab.get(:b) == 2
       assert TestTab.get(:nonexistent) == nil
+      assert TestTab.get(:nonexistent, :default) == :default
 
       # Test the bang versions
-      assert TestTab.get!(:a) == 1
-      assert TestTab.get!(:b) == 2
-      assert_raise KeyError, fn -> TestTab.get!(:nonexistent) end
+      assert TestTab.fetch!(:a) == 1
+      assert TestTab.fetch!(:b) == 2
+      assert_raise KeyError, fn -> TestTab.fetch!(:nonexistent) end
     end
 
     test "handles different data types" do
@@ -46,16 +51,21 @@ defmodule ExfoilTest do
       assert {:ok, module_name} = Exfoil.convert(:complex_tab)
       assert module_name == ComplexTab
 
-      assert ComplexTab.get(:string) == {:ok, "hello"}
-      assert ComplexTab.get(:list) == {:ok, [1, 2, 3]}
-      assert ComplexTab.get(:map) == {:ok, %{key: "value"}}
-      assert ComplexTab.get(:tuple) == {:ok, {:nested, :tuple}}
+      assert ComplexTab.fetch(:string) == {:ok, "hello"}
+      assert ComplexTab.fetch(:list) == {:ok, [1, 2, 3]}
+      assert ComplexTab.fetch(:map) == {:ok, %{key: "value"}}
+      assert ComplexTab.fetch(:tuple) == {:ok, {:nested, :tuple}}
+
+      assert ComplexTab.get(:string) == "hello"
+      assert ComplexTab.get(:list) == [1, 2, 3]
+      assert ComplexTab.get(:map) == %{key: "value"}
+      assert ComplexTab.get(:tuple) == {:nested, :tuple}
 
       # Test bang versions
-      assert ComplexTab.get!(:string) == "hello"
-      assert ComplexTab.get!(:list) == [1, 2, 3]
-      assert ComplexTab.get!(:map) == %{key: "value"}
-      assert ComplexTab.get!(:tuple) == {:nested, :tuple}
+      assert ComplexTab.fetch!(:string) == "hello"
+      assert ComplexTab.fetch!(:list) == [1, 2, 3]
+      assert ComplexTab.fetch!(:map) == %{key: "value"}
+      assert ComplexTab.fetch!(:tuple) == {:nested, :tuple}
     end
 
     test "returns error for non-existent table" do
@@ -78,20 +88,25 @@ defmodule ExfoilTest do
 
       assert {:ok, module_name} = Exfoil.convert(:test_tab, module_name: :CustomModule)
       assert module_name == CustomModule
-      assert CustomModule.get(:key) == {:ok, "value"}
-      assert CustomModule.get!(:key) == "value"
+      assert CustomModule.fetch(:key) == {:ok, "value"}
+      assert CustomModule.fetch!(:key) == "value"
     end
 
-    test "supports custom function name" do
+    test "ignores function_name option for backward compatibility" do
       :ets.new(:test_tab, [:named_table])
       :ets.insert(:test_tab, {:key, "value"})
 
-      assert {:ok, module_name} = Exfoil.convert(:test_tab, function_name: :fetch)
+      # function_name option is now ignored - modules always use Map API
+      assert {:ok, module_name} = Exfoil.convert(:test_tab, function_name: :lookup)
       assert module_name == TestTab
-      assert TestTab.fetch(:key) == {:ok, "value"}
-      assert TestTab.fetch(:nonexistent) == nil
 
-      # Test bang version with custom function name
+      # Always generates fetch/1, fetch!/1, and get/2
+      assert TestTab.fetch(:key) == {:ok, "value"}
+      assert TestTab.fetch(:nonexistent) == :error
+      assert TestTab.get(:key) == "value"
+      assert TestTab.get(:nonexistent) == nil
+
+      # Test bang version
       assert TestTab.fetch!(:key) == "value"
       assert_raise KeyError, fn -> TestTab.fetch!(:nonexistent) end
     end
@@ -104,8 +119,9 @@ defmodule ExfoilTest do
 
       assert module_name = Exfoil.convert!(:test_tab)
       assert module_name == TestTab
-      assert TestTab.get(:key) == {:ok, "value"}
-      assert TestTab.get!(:key) == "value"
+      assert TestTab.fetch(:key) == {:ok, "value"}
+      assert TestTab.fetch!(:key) == "value"
+      assert TestTab.get(:key) == "value"
     end
 
     test "raises on non-existent table" do
@@ -160,16 +176,22 @@ defmodule ExfoilTest do
       assert module_name == Tab1
 
       # Test the generated module works as expected
-      assert Tab1.get(:a) == {:ok, 1}
-      assert Tab1.get(:b) == {:ok, 2}
-      assert Tab1.get(:c) == {:ok, "hello"}
+      assert Tab1.fetch(:a) == {:ok, 1}
+      assert Tab1.fetch(:b) == {:ok, 2}
+      assert Tab1.fetch(:c) == {:ok, "hello"}
+      assert Tab1.fetch(:nonexistent) == :error
+
+      assert Tab1.get(:a) == 1
+      assert Tab1.get(:b) == 2
+      assert Tab1.get(:c) == "hello"
       assert Tab1.get(:nonexistent) == nil
+      assert Tab1.get(:nonexistent, :default) == :default
 
       # Test bang versions
-      assert Tab1.get!(:a) == 1
-      assert Tab1.get!(:b) == 2
-      assert Tab1.get!(:c) == "hello"
-      assert_raise KeyError, fn -> Tab1.get!(:nonexistent) end
+      assert Tab1.fetch!(:a) == 1
+      assert Tab1.fetch!(:b) == 2
+      assert Tab1.fetch!(:c) == "hello"
+      assert_raise KeyError, fn -> Tab1.fetch!(:nonexistent) end
 
       # Test additional helper functions
       assert Tab1.count() == 3

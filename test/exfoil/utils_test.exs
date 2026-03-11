@@ -52,129 +52,100 @@ defmodule Exfoil.UtilsTest do
     end
   end
 
-  describe "normalize_function_name/1" do
-    test "converts uppercase starting letters to lowercase" do
-      assert Utils.normalize_function_name(:Lookup) == :lookup
-      assert Utils.normalize_function_name(:GetData) == :getdata
-      assert Utils.normalize_function_name(:Fetch) == :fetch
+  describe "create_module/4" do
+    test "creates a module with fetch/1, fetch!/1, and get/2 functions" do
+      entries = [{:a, 1}, {:b, 2}, {:c, "hello"}]
+      module_name = :TestGeneratedModule
+
+      module_alias = Utils.create_module(module_name, entries, "test source")
+
+      # Test module name
+      assert module_alias == TestGeneratedModule
+
+      # Test fetch/1
+      assert TestGeneratedModule.fetch(:a) == {:ok, 1}
+      assert TestGeneratedModule.fetch(:b) == {:ok, 2}
+      assert TestGeneratedModule.fetch(:c) == {:ok, "hello"}
+      assert TestGeneratedModule.fetch(:nonexistent) == :error
+
+      # Test fetch!/1
+      assert TestGeneratedModule.fetch!(:a) == 1
+      assert TestGeneratedModule.fetch!(:b) == 2
+      assert TestGeneratedModule.fetch!(:c) == "hello"
+      assert_raise KeyError, fn -> TestGeneratedModule.fetch!(:nonexistent) end
+
+      # Test get/2
+      assert TestGeneratedModule.get(:a) == 1
+      assert TestGeneratedModule.get(:b) == 2
+      assert TestGeneratedModule.get(:c) == "hello"
+      assert TestGeneratedModule.get(:nonexistent) == nil
+      assert TestGeneratedModule.get(:nonexistent, :default) == :default
+
+      # Test helper functions
+      assert TestGeneratedModule.keys() == [:a, :b, :c]
+      assert TestGeneratedModule.all() == entries
+      assert TestGeneratedModule.count() == 3
     end
 
-    test "preserves already lowercase function names" do
-      assert Utils.normalize_function_name(:get) == :get
-      assert Utils.normalize_function_name(:fetch) == :fetch
-      assert Utils.normalize_function_name(:lookup) == :lookup
+    test "handles empty entries" do
+      module_alias = Utils.create_module(:EmptyModule, [], "empty source")
+
+      assert module_alias == EmptyModule
+      assert EmptyModule.keys() == []
+      assert EmptyModule.all() == []
+      assert EmptyModule.count() == 0
+      assert EmptyModule.fetch(:any) == :error
+      assert EmptyModule.get(:any) == nil
     end
 
-    test "handles underscore prefixed names" do
-      assert Utils.normalize_function_name(:_private) == :_private
-      assert Utils.normalize_function_name(:_get_data) == :_get_data
-    end
+    test "handles extra functions" do
+      entries = [{:x, 10}]
+      extra_functions = [
+        quote do
+          def custom_function do
+            "custom value"
+          end
+        end
+      ]
 
-    test "handles underscore followed by uppercase" do
-      assert Utils.normalize_function_name(:_PrivateGet) == :_privateget
-      assert Utils.normalize_function_name(:_FetchData) == :_fetchdata
-      assert Utils.normalize_function_name(:_LOOKUP) == :_lookup
-    end
+      module_alias = Utils.create_module(:ModuleWithExtras, entries, "test", extra_functions)
 
-    test "handles mixed case names" do
-      # Note: only names starting with uppercase are converted
-      assert Utils.normalize_function_name(:getData) == :getData
-      assert Utils.normalize_function_name(:fetchUserData) == :fetchUserData
-      assert Utils.normalize_function_name(:parseJSON) == :parseJSON
-      # These start with uppercase so they get lowercased
-      assert Utils.normalize_function_name(:GetData) == :getdata
-      assert Utils.normalize_function_name(:FetchUserData) == :fetchuserdata
-      assert Utils.normalize_function_name(:ParseJSON) == :parsejson
-    end
-
-    test "handles all uppercase names" do
-      assert Utils.normalize_function_name(:GET) == :get
-      assert Utils.normalize_function_name(:FETCH) == :fetch
-      assert Utils.normalize_function_name(:LOOKUP_DATA) == :lookup_data
-    end
-
-    test "preserves snake_case function names" do
-      assert Utils.normalize_function_name(:get_user) == :get_user
-      assert Utils.normalize_function_name(:fetch_data) == :fetch_data
-      assert Utils.normalize_function_name(:lookup_value) == :lookup_value
-    end
-
-    test "handles function names with numbers" do
-      assert Utils.normalize_function_name(:Get1) == :get1
-      assert Utils.normalize_function_name(:fetch2) == :fetch2
-      assert Utils.normalize_function_name(:lookup_3) == :lookup_3
-    end
-
-    test "handles single letter function names" do
-      assert Utils.normalize_function_name(:A) == :a
-      assert Utils.normalize_function_name(:a) == :a
-      assert Utils.normalize_function_name(:_A) == :_a
-    end
-
-    test "handles empty string edge case" do
-      # This shouldn't happen in practice, but let's test it anyway
-      assert Utils.normalize_function_name(:"") == :""
+      assert module_alias == ModuleWithExtras
+      assert ModuleWithExtras.custom_function() == "custom value"
+      assert ModuleWithExtras.fetch(:x) == {:ok, 10}
+      assert ModuleWithExtras.get(:x) == 10
     end
   end
 
-  describe "edge cases and special scenarios" do
+  describe "edge cases and string inputs" do
     test "handles string inputs for module names" do
-      # The function converts to string internally, so strings should work
-      assert Utils.normalize_module_name("person") == :Person
       assert Utils.normalize_module_name("user_profile") == :UserProfile
+      assert Utils.normalize_module_name("MyModule") == :MyModule
     end
 
-    test "handles string inputs for function names" do
-      assert Utils.normalize_function_name("Lookup") == :lookup
-      assert Utils.normalize_function_name("get_data") == :get_data
+    test "module names with leading underscores" do
+      # Leading underscores are stripped when splitting
+      assert Utils.normalize_module_name(:_private_module) == :PrivateModule
+      assert Utils.normalize_module_name(:__internal) == :Internal
     end
 
-    test "module names with special prefixes" do
-      assert Utils.normalize_module_name(:elixir_module) == :ElixirModule
-      # Note: underscores are treated as separators, so __meta__ becomes Meta
-      assert Utils.normalize_module_name(:__meta__) == :Meta
-    end
-
-    test "function names with double underscores" do
-      # Double underscores at the start are preserved
-      assert Utils.normalize_function_name(:__init__) == :__init__
-      # But if it starts with uppercase after underscores, only first char pattern is checked
-      assert Utils.normalize_function_name(:__GetData__) == :__GetData__
-    end
-
-    test "consistency between multiple calls" do
+    test "idempotency of normalization functions" do
       # Ensure the functions are pure and return the same result
       assert Utils.normalize_module_name(:user_profile) == Utils.normalize_module_name(:user_profile)
-      assert Utils.normalize_function_name(:GetData) == Utils.normalize_function_name(:GetData)
     end
   end
 
-  describe "integration with actual usage patterns" do
-    test "typical ETS table name normalization" do
+  describe "performance testing" do
+    test "typical module name normalization" do
       assert Utils.normalize_module_name(:tab1) == :Tab1
-      assert Utils.normalize_module_name(:config_dets) == :ConfigDets
-      assert Utils.normalize_module_name(:user_cache) == :UserCache
-    end
-
-    test "typical custom function name normalization" do
-      assert Utils.normalize_function_name(:get) == :get
-      assert Utils.normalize_function_name(:fetch) == :fetch
-      assert Utils.normalize_function_name(:lookup) == :lookup
-      assert Utils.normalize_function_name(:Lookup) == :lookup
+      assert Utils.normalize_module_name(:my_config) == :MyConfig
+      assert Utils.normalize_module_name(:user_data) == :UserData
     end
 
     test "module names from README examples" do
       assert Utils.normalize_module_name(:person) == :Person
       assert Utils.normalize_module_name(:user_profile) == :UserProfile
       assert Utils.normalize_module_name(:UserData) == :UserData
-      assert Utils.normalize_module_name(:my_table) == :MyTable
-    end
-
-    test "function names from README examples" do
-      assert Utils.normalize_function_name(:Lookup) == :lookup
-      assert Utils.normalize_function_name(:GetData) == :getdata
-      assert Utils.normalize_function_name(:_PrivateGet) == :_privateget
-      assert Utils.normalize_function_name(:fetch) == :fetch
     end
   end
 end

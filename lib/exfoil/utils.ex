@@ -35,51 +35,12 @@ defmodule Exfoil.Utils do
     end
   end
 
-  @doc """
-  Normalizes a function name to valid Elixir format (lowercase).
-
-  Function names must start with a lowercase letter or underscore.
-
-  ## Examples
-
-      iex> Exfoil.Utils.normalize_function_name(:Lookup)
-      :lookup
-
-      iex> Exfoil.Utils.normalize_function_name(:GetData)
-      :getdata
-
-      iex> Exfoil.Utils.normalize_function_name(:_PrivateGet)
-      :_privateget
-
-      iex> Exfoil.Utils.normalize_function_name(:fetch)
-      :fetch
-  """
-  def normalize_function_name(function_name) do
-    str = to_string(function_name)
-
-    # Use String.at/2 for better performance instead of regex
-    case {String.at(str, 0), String.at(str, 1)} do
-      {"_", <<c::utf8>>} when c >= ?A and c <= ?Z ->
-        # Starts with underscore followed by uppercase
-        "_" <> rest = str
-        String.to_atom("_" <> String.downcase(rest))
-      {<<c::utf8>>, _} when c >= ?A and c <= ?Z ->
-        # Starts with uppercase, convert to lowercase
-        str
-        |> String.downcase()
-        |> String.to_atom()
-      _ ->
-        # Otherwise keep as is
-        String.to_atom(str)
-    end
-  end
 
   @doc """
-  Creates a dynamic module with the given name, function name, and entries.
+  Creates a dynamic module with the given name and entries.
 
   ## Parameters
     - module_name: The name for the generated module
-    - function_name: The name of the lookup function to generate
     - entries: List of {key, value} tuples to include in the module
     - source_type: Optional description of the data source (default: "data source")
     - extra_functions: Optional list of additional function ASTs to include
@@ -87,11 +48,11 @@ defmodule Exfoil.Utils do
   ## Returns
     The module alias of the created module
   """
-  def create_module(module_name, function_name, entries, source_type \\ "data source", extra_functions \\ []) do
+  def create_module(module_name, entries, source_type \\ "data source", extra_functions \\ []) do
     # Input validation for performance and security
     validate_input(entries, source_type)
     # Optimize by pre-computing escaped values and keys in a single pass
-    {function_clauses, escaped_keys, escaped_entries} = generate_optimized_clauses(function_name, entries)
+    {function_clauses, escaped_keys, escaped_entries} = generate_optimized_clauses(entries)
 
     # Convert atom module name to proper module alias
     module_alias = Module.concat([module_name])
@@ -140,85 +101,83 @@ defmodule Exfoil.Utils do
 
   @doc """
   Optimized function clause generation that processes entries in a single pass.
-  Creates both safe and bang versions of the function while pre-computing
-  escaped values to avoid redundant Macro.escape calls.
+  Creates fetch/1, fetch!/1, and get/2 functions following the Elixir Map API.
 
   ## Parameters
-    - function_name: The name of the function to generate
     - entries: List of {key, value} tuples
 
   ## Returns
     {function_clauses, escaped_keys, escaped_entries}
   """
-  def generate_optimized_clauses(function_name, entries) do
-    bang_function_name = String.to_atom("#{function_name}!")
-
+  def generate_optimized_clauses(entries) do
     # Single pass through entries to build all necessary data structures
-    {safe_clauses, bang_clauses, keys, escaped_entries} =
-      Enum.reduce(entries, {[], [], [], []}, fn {key, value}, {safe_acc, bang_acc, keys_acc, entries_acc} ->
+    {fetch_clauses, fetch_bang_clauses, get_clauses, keys, escaped_entries} =
+      Enum.reduce(entries, {[], [], [], [], []}, fn {key, value}, {fetch_acc, fetch_bang_acc, get_acc, keys_acc, entries_acc} ->
         escaped_value = Macro.escape(value)
 
-        safe_clause = quote do
-          def unquote(function_name)(unquote(key), _default) do
+        # fetch/1 returns {:ok, value} or :error
+        fetch_clause = quote do
+          def fetch(unquote(key)) do
             {:ok, unquote(escaped_value)}
           end
         end
 
-        bang_clause = quote do
-          def unquote(bang_function_name)(unquote(key)) do
+        # fetch!/1 returns value or raises
+        fetch_bang_clause = quote do
+          def fetch!(unquote(key)) do
+            unquote(escaped_value)
+          end
+        end
+
+        # get/2 returns value or default
+        get_clause = quote do
+          def get(unquote(key), _default) do
             unquote(escaped_value)
           end
         end
 
         {
-          [safe_clause | safe_acc],
-          [bang_clause | bang_acc],
+          [fetch_clause | fetch_acc],
+          [fetch_bang_clause | fetch_bang_acc],
+          [get_clause | get_acc],
           [key | keys_acc],
           [{key, value} | entries_acc]
         }
       end)
 
-    # Generate header clause with default argument
-    safe_header = quote do
-      def unquote(function_name)(key, default \\ nil)
+    # Generate header clause with default argument for get/2
+    get_header = quote do
+      def get(key, default \\ nil)
     end
 
     # Add catch-all clauses
-    safe_catch_all = quote do
-      def unquote(function_name)(_key, default) do
-        default
+    fetch_catch_all = quote do
+      def fetch(_key) do
+        :error
       end
     end
 
-    bang_catch_all = quote do
-      def unquote(bang_function_name)(key) do
+    fetch_bang_catch_all = quote do
+      def fetch!(key) do
         raise KeyError, key: key, term: __MODULE__
       end
     end
 
+    get_catch_all = quote do
+      def get(_key, default) do
+        default
+      end
+    end
+
     # Combine all clauses efficiently (reverse to maintain order)
-    all_clauses = [safe_header | Enum.reverse(safe_clauses)] ++
-                  Enum.reverse(bang_clauses) ++
-                  [safe_catch_all, bang_catch_all]
+    all_clauses = Enum.reverse(fetch_clauses) ++
+                  Enum.reverse(fetch_bang_clauses) ++
+                  [get_header | Enum.reverse(get_clauses)] ++
+                  [fetch_catch_all, fetch_bang_catch_all, get_catch_all]
 
     {all_clauses, Macro.escape(Enum.reverse(keys)), Macro.escape(Enum.reverse(escaped_entries))}
   end
 
-  @doc """
-  Legacy function clause generation for backwards compatibility.
-  Creates both safe and bang versions of the function.
-
-  ## Parameters
-    - function_name: The name of the function to generate
-    - entries: List of {key, value} tuples
-
-  ## Returns
-    List of AST nodes representing function clauses
-  """
-  def generate_function_clauses(function_name, entries) do
-    {clauses, _keys, _entries} = generate_optimized_clauses(function_name, entries)
-    clauses
-  end
   # Private helper functions
 
   defp validate_input(entries, source_type) do

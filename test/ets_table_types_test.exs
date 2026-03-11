@@ -11,8 +11,8 @@ defmodule EtsTableTypesTest do
       {:ok, TestSet} = Exfoil.convert(:test_set)
 
       # Set tables keep only the latest value for each key
-      assert TestSet.get(:a) == {:ok, 3}
-      assert TestSet.get(:b) == {:ok, 2}
+      assert TestSet.fetch(:a) == {:ok, 3}
+      assert TestSet.fetch(:b) == {:ok, 2}
       assert TestSet.count() == 2
       assert length(TestSet.keys()) == 2
     end
@@ -25,9 +25,9 @@ defmodule EtsTableTypesTest do
 
       {:ok, TestOrderedSet} = Exfoil.convert(:test_ordered_set)
 
-      assert TestOrderedSet.get(:a) == {:ok, 1}
-      assert TestOrderedSet.get(:b) == {:ok, 2}
-      assert TestOrderedSet.get(:c) == {:ok, 3}
+      assert TestOrderedSet.fetch(:a) == {:ok, 1}
+      assert TestOrderedSet.fetch(:b) == {:ok, 2}
+      assert TestOrderedSet.fetch(:c) == {:ok, 3}
 
       # Ordered sets maintain key order
       assert TestOrderedSet.keys() == [:a, :b, :c]
@@ -44,8 +44,8 @@ defmodule EtsTableTypesTest do
       {:ok, TestBag} = Exfoil.convert(:test_bag)
 
       # Only the first value is returned due to function clause matching
-      assert TestBag.get(:a) == {:ok, 1}
-      assert TestBag.get(:b) == {:ok, 3}
+      assert TestBag.fetch(:a) == {:ok, 1}
+      assert TestBag.fetch(:b) == {:ok, 3}
 
       # keys() shows duplicate keys
       keys = TestBag.keys()
@@ -71,8 +71,8 @@ defmodule EtsTableTypesTest do
       {:ok, TestDupBag} = Exfoil.convert(:test_dup_bag)
 
       # Only the first value is returned
-      assert TestDupBag.get(:a) == {:ok, 1}
-      assert TestDupBag.get(:b) == {:ok, 3}
+      assert TestDupBag.fetch(:a) == {:ok, 1}
+      assert TestDupBag.fetch(:b) == {:ok, 3}
 
       # keys() shows all duplicate keys
       keys = TestDupBag.keys()
@@ -95,11 +95,11 @@ defmodule EtsTableTypesTest do
         {:ok, module} = Exfoil.convert(table_name)
 
         # Bang version returns value directly
-        assert module.get!(:exists) == "value"
+        assert module.fetch!(:exists) == "value"
 
         # Bang version raises for missing keys
         assert_raise KeyError, fn ->
-          module.get!(:missing)
+          module.fetch!(:missing)
         end
       end)
     end
@@ -119,8 +119,9 @@ defmodule EtsTableTypesTest do
         assert module.get(:missing, %{not: "found"}) == %{not: "found"}
 
         # Existing keys still return {:ok, value}
-        assert module.get(:exists) == {:ok, "value"}
-        assert module.get(:exists, :default) == {:ok, "value"}
+        assert module.fetch(:exists) == {:ok, "value"}
+        assert module.get(:exists) == "value"
+        assert module.get(:exists, :default) == "value"
       end)
     end
 
@@ -136,13 +137,13 @@ defmodule EtsTableTypesTest do
 
         {:ok, module} = Exfoil.convert(table_name)
 
-        assert module.get(:map) == {:ok, %{name: "Alice", age: 30}}
-        assert module.get(:list) == {:ok, [1, 2, 3]}
-        assert module.get(:tuple) == {:ok, {:ok, "result"}}
+        assert module.fetch(:map) == {:ok, %{name: "Alice", age: 30}}
+        assert module.fetch(:list) == {:ok, [1, 2, 3]}
+        assert module.fetch(:tuple) == {:ok, {:ok, "result"}}
 
-        assert module.get!(:map) == %{name: "Alice", age: 30}
-        assert module.get!(:list) == [1, 2, 3]
-        assert module.get!(:tuple) == {:ok, "result"}
+        assert module.fetch!(:map) == %{name: "Alice", age: 30}
+        assert module.fetch!(:list) == [1, 2, 3]
+        assert module.fetch!(:tuple) == {:ok, "result"}
       end)
     end
   end
@@ -163,7 +164,7 @@ defmodule EtsTableTypesTest do
 
       # Exfoil only returns the first value
       {:ok, BagComparison} = Exfoil.convert(:bag_comparison)
-      assert BagComparison.get(:key) == {:ok, "first"}
+      assert BagComparison.fetch(:key) == {:ok, "first"}
 
       # But all() shows all entries
       assert length(BagComparison.all()) == 3
@@ -181,7 +182,7 @@ defmodule EtsTableTypesTest do
 
       # Exfoil only returns the first value
       {:ok, DupBagComparison} = Exfoil.convert(:dup_bag_comparison)
-      assert DupBagComparison.get(:key) == {:ok, "value"}
+      assert DupBagComparison.fetch(:key) == {:ok, "value"}
 
       # all() shows all entries including duplicates
       all_entries = DupBagComparison.all()

@@ -14,14 +14,20 @@ defmodule Exfoil.MapsTest do
       assert module_name == TestMap
 
       # Test the generated functions
-      assert TestMap.get(:a) == {:ok, 1}
-      assert TestMap.get(:b) == {:ok, 2}
+      assert TestMap.fetch(:a) == {:ok, 1}
+      assert TestMap.fetch(:b) == {:ok, 2}
+      assert TestMap.fetch(:nonexistent) == :error
+
+      # Test get/2
+      assert TestMap.get(:a) == 1
+      assert TestMap.get(:b) == 2
       assert TestMap.get(:nonexistent) == nil
+      assert TestMap.get(:nonexistent, :default) == :default
 
       # Test bang versions
-      assert TestMap.get!(:a) == 1
-      assert TestMap.get!(:b) == 2
-      assert_raise KeyError, fn -> TestMap.get!(:nonexistent) end
+      assert TestMap.fetch!(:a) == 1
+      assert TestMap.fetch!(:b) == 2
+      assert_raise KeyError, fn -> TestMap.fetch!(:nonexistent) end
     end
 
     test "handles different data types" do
@@ -37,20 +43,28 @@ defmodule Exfoil.MapsTest do
       assert {:ok, module_name} = Maps.convert(data, :ComplexMap)
       assert module_name == ComplexMap
 
-      assert ComplexMap.get(:string) == {:ok, "hello"}
-      assert ComplexMap.get(:list) == {:ok, [1, 2, 3]}
-      assert ComplexMap.get(:map) == {:ok, %{key: "value"}}
-      assert ComplexMap.get(:tuple) == {:ok, {:nested, :tuple}}
-      assert ComplexMap.get(:atom) == {:ok, :test_atom}
-      assert ComplexMap.get(:number) == {:ok, 42.5}
+      assert ComplexMap.fetch(:string) == {:ok, "hello"}
+      assert ComplexMap.fetch(:list) == {:ok, [1, 2, 3]}
+      assert ComplexMap.fetch(:map) == {:ok, %{key: "value"}}
+      assert ComplexMap.fetch(:tuple) == {:ok, {:nested, :tuple}}
+      assert ComplexMap.fetch(:atom) == {:ok, :test_atom}
+      assert ComplexMap.fetch(:number) == {:ok, 42.5}
+
+      # Test get/2
+      assert ComplexMap.get(:string) == "hello"
+      assert ComplexMap.get(:list) == [1, 2, 3]
+      assert ComplexMap.get(:map) == %{key: "value"}
+      assert ComplexMap.get(:tuple) == {:nested, :tuple}
+      assert ComplexMap.get(:atom) == :test_atom
+      assert ComplexMap.get(:number) == 42.5
 
       # Test bang versions
-      assert ComplexMap.get!(:string) == "hello"
-      assert ComplexMap.get!(:list) == [1, 2, 3]
-      assert ComplexMap.get!(:map) == %{key: "value"}
-      assert ComplexMap.get!(:tuple) == {:nested, :tuple}
-      assert ComplexMap.get!(:atom) == :test_atom
-      assert ComplexMap.get!(:number) == 42.5
+      assert ComplexMap.fetch!(:string) == "hello"
+      assert ComplexMap.fetch!(:list) == [1, 2, 3]
+      assert ComplexMap.fetch!(:map) == %{key: "value"}
+      assert ComplexMap.fetch!(:tuple) == {:nested, :tuple}
+      assert ComplexMap.fetch!(:atom) == :test_atom
+      assert ComplexMap.fetch!(:number) == 42.5
     end
 
     test "handles empty map" do
@@ -64,33 +78,25 @@ defmodule Exfoil.MapsTest do
       assert EmptyMap.to_map() == %{}
     end
 
-    test "supports custom function name" do
-      data = %{key: "value"}
-
-      assert {:ok, module_name} = Maps.convert(data, :TestMap, function_name: :fetch)
-      assert module_name == TestMap
-      assert TestMap.fetch(:key) == {:ok, "value"}
-      assert TestMap.fetch(:nonexistent) == nil
-
-      # Test bang version with custom function name
-      assert TestMap.fetch!(:key) == "value"
-      assert_raise KeyError, fn -> TestMap.fetch!(:nonexistent) end
-    end
-
     test "handles string keys" do
       data = %{"string_key" => "value", "another_key" => 123}
 
       assert {:ok, module_name} = Maps.convert(data, :StringKeyMap)
       assert module_name == StringKeyMap
 
-      assert StringKeyMap.get("string_key") == {:ok, "value"}
-      assert StringKeyMap.get("another_key") == {:ok, 123}
+      assert StringKeyMap.fetch("string_key") == {:ok, "value"}
+      assert StringKeyMap.fetch("another_key") == {:ok, 123}
+      assert StringKeyMap.fetch("nonexistent") == :error
+
+      # Test get/2
+      assert StringKeyMap.get("string_key") == "value"
+      assert StringKeyMap.get("another_key") == 123
       assert StringKeyMap.get("nonexistent") == nil
 
       # Test bang versions
-      assert StringKeyMap.get!("string_key") == "value"
-      assert StringKeyMap.get!("another_key") == 123
-      assert_raise KeyError, fn -> StringKeyMap.get!("nonexistent") end
+      assert StringKeyMap.fetch!("string_key") == "value"
+      assert StringKeyMap.fetch!("another_key") == 123
+      assert_raise KeyError, fn -> StringKeyMap.fetch!("nonexistent") end
     end
 
     test "handles mixed key types" do
@@ -99,14 +105,19 @@ defmodule Exfoil.MapsTest do
       assert {:ok, module_name} = Maps.convert(data, :MixedKeyMap)
       assert module_name == MixedKeyMap
 
-      assert MixedKeyMap.get(:atom_key) == {:ok, "atom_value"}
-      assert MixedKeyMap.get("string_key") == {:ok, "string_value"}
-      assert MixedKeyMap.get(1) == {:ok, "number_value"}
+      assert MixedKeyMap.fetch(:atom_key) == {:ok, "atom_value"}
+      assert MixedKeyMap.fetch("string_key") == {:ok, "string_value"}
+      assert MixedKeyMap.fetch(1) == {:ok, "number_value"}
+
+      # Test get/2
+      assert MixedKeyMap.get(:atom_key) == "atom_value"
+      assert MixedKeyMap.get("string_key") == "string_value"
+      assert MixedKeyMap.get(1) == "number_value"
 
       # Test bang versions
-      assert MixedKeyMap.get!(:atom_key) == "atom_value"
-      assert MixedKeyMap.get!("string_key") == "string_value"
-      assert MixedKeyMap.get!(1) == "number_value"
+      assert MixedKeyMap.fetch!(:atom_key) == "atom_value"
+      assert MixedKeyMap.fetch!("string_key") == "string_value"
+      assert MixedKeyMap.fetch!(1) == "number_value"
     end
   end
 
@@ -116,8 +127,9 @@ defmodule Exfoil.MapsTest do
 
       assert module_name = Maps.convert!(data, :TestMap)
       assert module_name == TestMap
-      assert TestMap.get(:key) == {:ok, "value"}
-      assert TestMap.get!(:key) == "value"
+      assert TestMap.fetch(:key) == {:ok, "value"}
+      assert TestMap.fetch!(:key) == "value"
+      assert TestMap.get(:key) == "value"
     end
 
     test "raises on conversion failure" do
@@ -138,12 +150,16 @@ defmodule Exfoil.MapsTest do
 
       assert module1 != module2
 
-      assert module1.get(:a) == {:ok, 1}
-      assert module2.get(:b) == {:ok, 2}
+      assert module1.fetch(:a) == {:ok, 1}
+      assert module2.fetch(:b) == {:ok, 2}
+
+      # Test get/2
+      assert module1.get(:a) == 1
+      assert module2.get(:b) == 2
 
       # Test bang versions
-      assert module1.get!(:a) == 1
-      assert module2.get!(:b) == 2
+      assert module1.fetch!(:a) == 1
+      assert module2.fetch!(:b) == 2
     end
 
     test "generates same module name for identical maps" do
@@ -153,18 +169,6 @@ defmodule Exfoil.MapsTest do
       assert {:ok, module2} = Maps.convert_with_auto_name(data)
 
       assert module1 == module2
-    end
-
-    test "supports custom function name with auto naming" do
-      data = %{key: "value"}
-
-      assert {:ok, module_name} = Maps.convert_with_auto_name(data, function_name: :lookup)
-      assert module_name.lookup(:key) == {:ok, "value"}
-      assert module_name.lookup(:nonexistent) == nil
-
-      # Test bang version
-      assert module_name.lookup!(:key) == "value"
-      assert_raise KeyError, fn -> module_name.lookup!(:nonexistent) end
     end
   end
 
@@ -205,6 +209,14 @@ defmodule Exfoil.MapsTest do
       assert module.has_key?(:c) == true
       assert module.has_key?(:nonexistent) == false
     end
+
+    test "values/0 returns all values", %{module: module} do
+      values = module.values()
+      assert length(values) == 3
+      assert 1 in values
+      assert 2 in values
+      assert 3 in values
+    end
   end
 
   describe "integration test" do
@@ -217,16 +229,23 @@ defmodule Exfoil.MapsTest do
       assert module_name == MyData
 
       # Test the generated module works as expected
-      assert MyData.get(:a) == {:ok, 1}
-      assert MyData.get(:b) == {:ok, 2}
-      assert MyData.get(:c) == {:ok, "hello"}
+      assert MyData.fetch(:a) == {:ok, 1}
+      assert MyData.fetch(:b) == {:ok, 2}
+      assert MyData.fetch(:c) == {:ok, "hello"}
+      assert MyData.fetch(:nonexistent) == :error
+
+      # Test get/2
+      assert MyData.get(:a) == 1
+      assert MyData.get(:b) == 2
+      assert MyData.get(:c) == "hello"
       assert MyData.get(:nonexistent) == nil
+      assert MyData.get(:nonexistent, :default) == :default
 
       # Test bang versions
-      assert MyData.get!(:a) == 1
-      assert MyData.get!(:b) == 2
-      assert MyData.get!(:c) == "hello"
-      assert_raise KeyError, fn -> MyData.get!(:nonexistent) end
+      assert MyData.fetch!(:a) == 1
+      assert MyData.fetch!(:b) == 2
+      assert MyData.fetch!(:c) == "hello"
+      assert_raise KeyError, fn -> MyData.fetch!(:nonexistent) end
 
       # Test additional helper functions
       assert MyData.count() == 3
@@ -237,6 +256,11 @@ defmodule Exfoil.MapsTest do
       assert MyData.to_map() == data
       assert MyData.has_key?(:a) == true
       assert MyData.has_key?(:nonexistent) == false
+      values = MyData.values()
+      assert length(values) == 3
+      assert 1 in values
+      assert 2 in values
+      assert "hello" in values
     end
 
     test "works with complex nested data structures" do
@@ -263,27 +287,35 @@ defmodule Exfoil.MapsTest do
       assert module_name == AppConfig
 
       # Test deeply nested access
-      {:ok, config} = AppConfig.get(:config)
+      {:ok, config} = AppConfig.fetch(:config)
       assert config[:database][:host] == "localhost"
       assert config[:database][:port] == 5432
       assert config[:database][:credentials] == {:username, "admin"}
 
-      {:ok, features} = AppConfig.get(:features)
+      {:ok, features} = AppConfig.fetch(:features)
       assert :feature_a in features
       assert :feature_b in features
       assert :feature_c in features
 
-      {:ok, metadata} = AppConfig.get(:metadata)
+      {:ok, metadata} = AppConfig.fetch(:metadata)
       assert metadata[:version] == "1.0.0"
       assert metadata[:build_date] == ~D[2024-01-15]
 
-      # Test bang versions for cleaner access
-      config = AppConfig.get!(:config)
+      # Test get/2 for cleaner access
+      config = AppConfig.get(:config)
       assert config[:database][:host] == "localhost"
-      features = AppConfig.get!(:features)
+      features = AppConfig.get(:features)
       assert :feature_a in features
-      metadata = AppConfig.get!(:metadata)
+      metadata = AppConfig.get(:metadata)
       assert metadata[:version] == "1.0.0"
+
+      # Test bang versions
+      config_bang = AppConfig.fetch!(:config)
+      assert config_bang[:database][:host] == "localhost"
+      features_bang = AppConfig.fetch!(:features)
+      assert :feature_a in features_bang
+      metadata_bang = AppConfig.fetch!(:metadata)
+      assert metadata_bang[:version] == "1.0.0"
     end
   end
 
@@ -294,12 +326,16 @@ defmodule Exfoil.MapsTest do
       assert {:ok, module_name} = Maps.convert(data, :NilValueMap)
       assert module_name == NilValueMap
 
-      assert NilValueMap.get(:nil_key) == {:ok, nil}
-      assert NilValueMap.get(:other_key) == {:ok, "value"}
+      assert NilValueMap.fetch(:nil_key) == {:ok, nil}
+      assert NilValueMap.fetch(:other_key) == {:ok, "value"}
+
+      # Test get/2
+      assert NilValueMap.get(:nil_key) == nil
+      assert NilValueMap.get(:other_key) == "value"
 
       # Test bang versions
-      assert NilValueMap.get!(:nil_key) == nil
-      assert NilValueMap.get!(:other_key) == "value"
+      assert NilValueMap.fetch!(:nil_key) == nil
+      assert NilValueMap.fetch!(:other_key) == "value"
     end
 
     test "handles large maps" do
@@ -310,15 +346,20 @@ defmodule Exfoil.MapsTest do
       assert module_name == LargeMap
 
       # Test some random entries
-      assert LargeMap.get(:key_1) == {:ok, 2}
-      assert LargeMap.get(:key_50) == {:ok, 100}
-      assert LargeMap.get(:key_100) == {:ok, 200}
+      assert LargeMap.fetch(:key_1) == {:ok, 2}
+      assert LargeMap.fetch(:key_50) == {:ok, 100}
+      assert LargeMap.fetch(:key_100) == {:ok, 200}
       assert LargeMap.count() == 100
 
+      # Test get/2
+      assert LargeMap.get(:key_1) == 2
+      assert LargeMap.get(:key_50) == 100
+      assert LargeMap.get(:key_100) == 200
+
       # Test bang versions
-      assert LargeMap.get!(:key_1) == 2
-      assert LargeMap.get!(:key_50) == 100
-      assert LargeMap.get!(:key_100) == 200
+      assert LargeMap.fetch!(:key_1) == 2
+      assert LargeMap.fetch!(:key_50) == 100
+      assert LargeMap.fetch!(:key_100) == 200
     end
 
     test "handles special characters in string keys" do
@@ -332,16 +373,22 @@ defmodule Exfoil.MapsTest do
       assert {:ok, module_name} = Maps.convert(data, :SpecialCharMap)
       assert module_name == SpecialCharMap
 
-      assert SpecialCharMap.get("key-with-dashes") == {:ok, "dash_value"}
-      assert SpecialCharMap.get("key with spaces") == {:ok, "space_value"}
-      assert SpecialCharMap.get("key/with/slashes") == {:ok, "slash_value"}
-      assert SpecialCharMap.get("key.with.dots") == {:ok, "dot_value"}
+      assert SpecialCharMap.fetch("key-with-dashes") == {:ok, "dash_value"}
+      assert SpecialCharMap.fetch("key with spaces") == {:ok, "space_value"}
+      assert SpecialCharMap.fetch("key/with/slashes") == {:ok, "slash_value"}
+      assert SpecialCharMap.fetch("key.with.dots") == {:ok, "dot_value"}
+
+      # Test get/2
+      assert SpecialCharMap.get("key-with-dashes") == "dash_value"
+      assert SpecialCharMap.get("key with spaces") == "space_value"
+      assert SpecialCharMap.get("key/with/slashes") == "slash_value"
+      assert SpecialCharMap.get("key.with.dots") == "dot_value"
 
       # Test bang versions
-      assert SpecialCharMap.get!("key-with-dashes") == "dash_value"
-      assert SpecialCharMap.get!("key with spaces") == "space_value"
-      assert SpecialCharMap.get!("key/with/slashes") == "slash_value"
-      assert SpecialCharMap.get!("key.with.dots") == "dot_value"
+      assert SpecialCharMap.fetch!("key-with-dashes") == "dash_value"
+      assert SpecialCharMap.fetch!("key with spaces") == "space_value"
+      assert SpecialCharMap.fetch!("key/with/slashes") == "slash_value"
+      assert SpecialCharMap.fetch!("key.with.dots") == "dot_value"
     end
   end
 end
