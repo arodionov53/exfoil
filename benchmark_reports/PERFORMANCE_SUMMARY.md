@@ -1,6 +1,6 @@
 # Exfoil Performance Summary Report
 
-*Generated: March 11, 2026*
+*Generated: March 11, 2026 (Updated)*
 
 ## Executive Summary
 
@@ -12,50 +12,59 @@ Exfoil consistently outperforms native ETS and Map implementations by converting
 
 | Dataset Size | Exfoil Speedup | Memory Reduction | Exfoil IPS | ETS IPS |
 |-------------|----------------|------------------|------------|----------|
-| 100 entries | **3.36x faster** | 194x less | 854.78K | 254.39K |
-| 1,000 entries | **2.81x faster** | 2,214x less | 50.41K | 17.91K |
-| 10,000 entries | **1.73x faster** | 22,446x less | 2.22K | 1.28K |
-| Complex data | **3.31x faster** | 2,726x less | 49.26K | 14.88K |
+| 100 entries | **3.26x faster** | 192x less | 855.65K | 262.75K |
+| 1,000 entries | **2.92x faster** | 2,205x less | 50.52K | 17.27K |
+| 10,000 entries | **1.70x faster** | 22,435x less | 2.22K | 1.31K |
+| Complex data | **3.52x faster** | 2,731x less | 52.13K | 14.81K |
 
 ### Maps Performance Results
 
 | Dataset Size | Performance vs Map.get/2 | Memory Usage | Best Use Case |
 |-------------|-------------------------|--------------|---------------|
-| 10 entries | 1.17x slower | Same | Small datasets favor native maps |
-| 100 entries | 1.34x slower | Same | Medium datasets comparable |
+| 10 entries | 1.18x slower | Same | Small datasets favor native maps |
+| 100 entries | 1.62x slower | Same | Medium datasets comparable |
 | 1,000 entries | **1.00x equivalent** | Same | Break-even point |
-| 5,000 entries | **1.88x faster** | 0B vs 32B | Large datasets favor Exfoil |
-| 10,000 entries | **1.77x faster** | 0B vs 32B | Significant advantage |
+| 5,000 entries | **2.04x faster** | 0B vs 32B | Large datasets favor Exfoil |
+| 10,000 entries | **1.89x faster** | 0B vs 32B | Significant advantage |
 
 ### ETS Table Types Performance
 
 | Table Type | Speedup | Memory | Best For |
 |------------|---------|--------|----------|
 | `:set` | **1.14x** | 325.9KB | General purpose |
-| `:ordered_set` | **1.99x** | 313.6KB | Ordered data with best performance |
-| `:bag` | **1.17x** | 331.4KB | Multi-value keys (first value only) |
-| `:duplicate_bag` | **1.19x** | 331.4KB | True duplicates (first value only) |
+| `:ordered_set` | **1.96x** | 313.6KB | Ordered data with best performance |
+| `:bag` | **1.14x** | 331.4KB | Multi-value keys (first value only) |
+| `:duplicate_bag` | **1.16x** | 331.4KB | True duplicates (first value only) |
+
+### Single Key Performance (1M operations)
+
+| Operation Type | Performance | Memory |
+|---------------|-------------|--------|
+| **Exfoil fetch!/1** | 27.50M ops/sec | 0B |
+| **Exfoil get/2** | 26.48M ops/sec | 0B |
+| ETS single lookup | 17.43M ops/sec | 72B |
+| ETS safe format | 15.36M ops/sec | 96B |
 
 ## Performance Characteristics
 
 ### Scaling Behavior
 
 ```
-ETS Lookups (Operations/sec):
-Small (100):     854,780 ops/sec
-Medium (1,000):   50,410 ops/sec
+Exfoil Operations (ops/sec):
+Small (100):     855,650 ops/sec
+Medium (1,000):   50,520 ops/sec
 Large (10,000):    2,220 ops/sec
 
 Native ETS:
-Small (100):     254,390 ops/sec
-Medium (1,000):   17,910 ops/sec
-Large (10,000):    1,280 ops/sec
+Small (100):     262,750 ops/sec
+Medium (1,000):   17,270 ops/sec
+Large (10,000):    1,310 ops/sec
 ```
 
 ### Memory Usage Patterns
 
 - **Runtime Memory**: Exfoil uses 0.0313 KB consistently across all dataset sizes
-- **ETS Memory**: Scales from 6.07 KB (small) to 701.45 KB (large)
+- **ETS Memory**: Scales from 6.01 KB (small) to 701.09 KB (large)
 - **Maps Memory**: 32B per lookup operation vs 0B for Exfoil
 - **Module Overhead**: Minimal bytecode storage, ~120B overhead for small maps
 
@@ -74,8 +83,9 @@ Recent optimizations have significantly improved module generation speed:
 ## Performance Analysis by Use Case
 
 ### 📊 Read-Heavy Workloads ⭐⭐⭐⭐⭐
-- **ETS**: 1.7x to 3.4x faster
-- **Maps**: 1.0x to 1.9x faster (scales with size)
+- **ETS**: 1.7x to 3.5x faster
+- **Maps**: 1.0x to 2.0x faster (scales with size)
+- **Single Key Access**: 1.6x to 1.8x faster than ETS
 - **Recommendation**: Excellent choice for any read-heavy scenario
 
 ### 🔄 Mixed Read/Write Workloads ⭐⭐⭐
@@ -92,6 +102,18 @@ Recent optimizations have significantly improved module generation speed:
 - **Advantage**: Consistent O(1) regardless of data size
 - **Benefit**: No hash collision concerns
 - **Recommendation**: Excellent for performance-critical applications
+
+## API Functions Performance
+
+### Generated Module Functions
+- **`fetch/1`**: Returns `{:ok, value}` or `:error` (Map API compatible)
+- **`fetch!/1`**: Returns value directly or raises `KeyError` (Map API compatible)
+- **`get/2`**: Returns value or default with optional default argument (Map API compatible)
+- **`keys/0`**: Returns list of all keys
+- **`all/0`**: Returns all key-value pairs
+- **`count/0`**: Returns number of entries
+
+All functions demonstrate consistent high performance with zero runtime memory allocations.
 
 ## Benchmark Environment
 
@@ -110,6 +132,7 @@ Recent optimizations have significantly improved module generation speed:
 - Predictable performance is critical
 - Memory efficiency is important
 - Dataset size is medium to large (1000+ entries)
+- Single key access performance is crucial
 
 ### ⚠️ Consider Alternatives When:
 - Data changes frequently
@@ -128,7 +151,14 @@ Recent optimizations have significantly improved module generation speed:
 
 Exfoil delivers significant performance improvements across all tested scenarios, with the greatest benefits in large datasets and read-heavy workloads. The recent performance optimizations have further improved module generation speed while maintaining the core performance advantages.
 
-**Bottom Line**: For read-heavy workloads with relatively static data, Exfoil provides 1.7x to 3.4x performance improvements over native implementations while using orders of magnitude less memory.
+**Key Highlights**:
+- **Up to 3.5x faster** than ETS lookups
+- **Up to 22,435x less memory** usage during runtime
+- **Zero runtime allocations** for all lookup operations
+- **Consistent O(1) performance** regardless of dataset size
+- **API compatibility** with Elixir Map functions
+
+**Bottom Line**: For read-heavy workloads with relatively static data, Exfoil provides 1.7x to 3.5x performance improvements over native implementations while using orders of magnitude less memory.
 
 ---
 

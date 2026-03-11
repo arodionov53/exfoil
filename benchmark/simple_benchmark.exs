@@ -65,8 +65,8 @@ ets_result = case :ets.lookup(:quick_test, test_key) do
   [] -> {:error, :not_found}
 end
 
-exfoil_result = apply(module_name, :get, [test_key])
-exfoil_bang_result = apply(module_name, :get!, [test_key])
+exfoil_result = apply(module_name, :fetch, [test_key])
+exfoil_bang_result = apply(module_name, :fetch!, [test_key])
 
 IO.puts("\nCorrectness check:")
 IO.puts("ETS result: #{inspect(ets_result)}")

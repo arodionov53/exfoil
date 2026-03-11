@@ -152,7 +152,7 @@ Benchee.run(
       end
     end,
     "Exfoil bang call" => fn ->
-      apply(single_module, :get!, [test_key])
+      apply(single_module, :fetch!, [test_key])
     end
   },
   time: 5,

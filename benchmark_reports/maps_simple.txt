@@ -25,32 +25,39 @@ Excluding outliers: false
 Benchmarking Access syntax map[key] ...
 Benchmarking Exfoil.Maps ...
 Benchmarking Map.get/2 ...
+Warning: The function you are trying to benchmark is super fast, making measurements more unreliable!
+This holds especially true for memory measurements or when running with hooks.
+
+See: https://github.com/bencheeorg/benchee/wiki/Benchee-Warnings#fast-execution-warning
+
+You may disable this warning by passing print: [fast_warning: false] as configuration options.
+
 Calculating statistics...
 Formatting results...
 
 Name                             ips        average  deviation         median         99th %
-Map.get/2                    15.07 M       66.34 ns  ±1566.49%          83 ns         125 ns
-Exfoil.Maps                  12.73 M       78.54 ns  ±5125.47%          83 ns         125 ns
-Access syntax map[key]       12.51 M       79.95 ns  ±1349.42%          83 ns         125 ns
+Map.get/2                    21.29 M       46.97 ns  ±2346.76%       41.70 ns       58.40 ns
+Access syntax map[key]       12.55 M       79.69 ns  ±1311.94%          83 ns         125 ns
+Exfoil.Maps                  12.00 M       83.31 ns  ±5089.14%          83 ns         166 ns
 
 Comparison: 
-Map.get/2                    15.07 M
-Exfoil.Maps                  12.73 M - 1.18x slower +12.20 ns
-Access syntax map[key]       12.51 M - 1.21x slower +13.61 ns
+Map.get/2                    21.29 M
+Access syntax map[key]       12.55 M - 1.70x slower +32.72 ns
+Exfoil.Maps                  12.00 M - 1.77x slower +36.34 ns
 
 Extended statistics: 
 
 Name                           minimum        maximum    sample size                     mode
-Map.get/2                         0 ns     1023041 ns            1 M                    83 ns
-Exfoil.Maps                       0 ns     3461584 ns            1 M                    83 ns
-Access syntax map[key]            0 ns     1068416 ns            1 M                    83 ns
+Map.get/2                     33.30 ns   836920.90 ns            1 M                 41.70 ns
+Access syntax map[key]            0 ns     1034125 ns            1 M                    83 ns
+Exfoil.Maps                       0 ns     3724583 ns            1 M                    83 ns
 
 Memory usage statistics:
 
 Name                      Memory usage
 Map.get/2                         32 B
-Exfoil.Maps                       32 B - 1.00x memory usage +0 B
 Access syntax map[key]            32 B - 1.00x memory usage +0 B
+Exfoil.Maps                       32 B - 1.00x memory usage +0 B
 
 **All measurements for memory usage were the same**
 
@@ -86,18 +93,18 @@ Calculating statistics...
 Formatting results...
 
 Name                                ips        average  deviation         median         99th %
-Map.get/2 single access         78.28 M       12.78 ns  ±1838.44%       12.50 ns          25 ns
-Exfoil.Maps single access       26.20 M       38.17 ns   ±378.54%          42 ns          42 ns
+Map.get/2 single access         80.90 M       12.36 ns   ±576.24%       12.50 ns          25 ns
+Exfoil.Maps single access       27.66 M       36.15 ns   ±132.18%          42 ns          42 ns
 
 Comparison: 
-Map.get/2 single access         78.28 M
-Exfoil.Maps single access       26.20 M - 2.99x slower +25.39 ns
+Map.get/2 single access         80.90 M
+Exfoil.Maps single access       27.66 M - 2.92x slower +23.79 ns
 
 Extended statistics: 
 
 Name                              minimum        maximum    sample size                     mode
-Map.get/2 single access           4.10 ns   199462.50 ns            1 M                 12.50 ns
-Exfoil.Maps single access            0 ns       26417 ns            1 M                    42 ns
+Map.get/2 single access           4.10 ns    53166.70 ns            1 M                 12.50 ns
+Exfoil.Maps single access            0 ns       26584 ns            1 M                    42 ns
 
 Memory usage statistics:
 

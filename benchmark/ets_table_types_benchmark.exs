@@ -114,7 +114,7 @@ defmodule EtsTableTypesBenchmark do
       Enum.each(1..@lookup_iterations, fn _ ->
         key = Enum.random(test_keys)
         try do
-          module.get!(key)
+          module.fetch!(key)
         rescue
           KeyError -> nil
         end
@@ -127,7 +127,7 @@ defmodule EtsTableTypesBenchmark do
     # Report results
     IO.puts("  ETS lookup:        #{format_time(ets_time)}")
     IO.puts("  Exfoil get/2:      #{format_time(exfoil_time)}")
-    IO.puts("  Exfoil get!/1:     #{format_time(exfoil_bang_time)}")
+    IO.puts("  Exfoil fetch!/1:   #{format_time(exfoil_bang_time)}")
     IO.puts("  Speed improvement: #{format_improvement(ets_time, exfoil_time)}")
     IO.puts("  ETS memory:        #{format_bytes(ets_memory)}")
 

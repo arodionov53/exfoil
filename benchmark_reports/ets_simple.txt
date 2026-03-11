@@ -4,18 +4,20 @@ Generated module: QuickTest
 Testing key retrieval: key_500
 Dataset size: 1000 entries
 
-ETS lookup: 38.22 ns per operation
-Exfoil call: 13.78 ns per operation
+ETS lookup: 38.69 ns per operation
+Exfoil call: 13.81 ns per operation
 
-Result: Exfoil is 2.77x faster than ETS
+Result: Exfoil is 2.8x faster than ETS
 
 Memory usage:
 ETS table: 108176 bytes (105.64 KB)
 Exfoil module: Stored in bytecode (minimal runtime memory)
-** (UndefinedFunctionError) function QuickTest.get!/1 is undefined or private. Did you mean:
 
-      * get/1
-      * get/2
+Correctness check:
+ETS result: {:ok, "value_500"}
+Exfoil result: {:ok, "value_500"}
+Exfoil bang result: "value_500"
+Safe versions match: true
+Bang version matches ETS value: true
 
-    QuickTest.get!(:key_500)
-    benchmark/simple_benchmark.exs:69: (file)
+✅ Benchmark complete!

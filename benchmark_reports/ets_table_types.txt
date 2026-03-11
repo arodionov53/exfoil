@@ -16,9 +16,9 @@
    ┌─────────────────┬──────────┬──────────┬──────────┬──────────┐
    │ Metric          │ :set     │ :ordered │ :bag     │ :dup_bag │
    ├─────────────────┼──────────┼──────────┼──────────┼──────────┤
-   │ ETS (ms)        │ 11.3     │ 20.1     │ 11.7     │ 11.9     ││
-   │ Exfoil (ms)     │ 10.0     │ 10.1     │ 10.0     │ 9.9      ││
-   │ Speedup         │ 1.14x    │ 1.99x    │ 1.17x    │ 1.19x    ││
+   │ ETS (ms)        │ 11.3     │ 19.5     │ 11.4     │ 11.7     ││
+   │ Exfoil (ms)     │ 9.9      │ 9.9      │ 10.0     │ 10.1     ││
+   │ Speedup         │ 1.14x    │ 1.96x    │ 1.14x    │ 1.16x    ││
    │ Memory          │ 325.9KB  │ 313.6KB  │ 331.4KB  │ 331.4KB  ││
    └─────────────────┴──────────┴──────────┴──────────┴──────────┘
 
@@ -26,20 +26,20 @@
    Testing :bag and :duplicate_bag with varying duplicate ratios
 
    0% duplicates:
-     bag: 1002 entries, 1.13x
-     duplicate_bag: 1002 entries, 1.12x
+     bag: 1002 entries, 1.12x
+     duplicate_bag: 1002 entries, 1.13x
 
    10% duplicates:
-     bag: 1100 entries, 1.16x
-     duplicate_bag: 1100 entries, 1.09x
+     bag: 1100 entries, 1.02x
+     duplicate_bag: 1100 entries, 1.12x
 
    50% duplicates:
      bag: 1500 entries, 1.15x
-     duplicate_bag: 1500 entries, 1.13x
+     duplicate_bag: 1500 entries, 1.1x
 
    100% duplicates:
-     bag: 2000 entries, 1.17x
-     duplicate_bag: 2000 entries, 1.17x
+     bag: 2000 entries, 1.12x
+     duplicate_bag: 2000 entries, 1.12x
 
 
 [34m3. MEMORY USAGE COMPARISON[0m
@@ -56,14 +56,14 @@
 [34m4. EDGE CASES[0m
 
    Empty tables:
-     set: 0.156 for 10k failed lookups
-     ordered_set: 0.153 for 10k failed lookups
-     bag: 0.149 for 10k failed lookups
-     duplicate_bag: 0.148 for 10k failed lookups
+     set: 0.158 for 10k failed lookups
+     ordered_set: 0.15 for 10k failed lookups
+     bag: 0.143 for 10k failed lookups
+     duplicate_bag: 0.142 for 10k failed lookups
 
    Single entry tables:
-     set: Hit: 0.163, Miss: 0.124
-     ordered_set: Hit: 0.151, Miss: 0.127
+     set: Hit: 0.157, Miss: 0.13
+     ordered_set: Hit: 0.148, Miss: 0.121
 
 [32mCONCLUSIONS[0m
 

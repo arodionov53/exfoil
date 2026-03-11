@@ -10,30 +10,30 @@ This benchmark tests the optimizations implemented in the performance branch:
 Testing ETS conversion performance:
 
 Small dataset (100 entries):
-  Conversion time: 29872μs
+  Conversion time: 39670μs
 
 Medium dataset (1000 entries):
-  Conversion time: 322429μs
+  Conversion time: 313278μs
 
 Large dataset (5000 entries):
-  Conversion time: 3860213μs
+  Conversion time: 3899924μs
 
 Testing Maps conversion performance:
 
 Small map (100 entries):
-  Conversion time: 32043μs
+  Conversion time: 26975μs
 
 Medium map (1000 entries):
-  Conversion time: 302716μs
+  Conversion time: 301391μs
 
 Large map (5000 entries):
-  Conversion time: 4127871μs
+  Conversion time: 4080316μs
 
 === Performance Analysis ===
 
 Scaling efficiency:
-- Small to medium (10x data): 10.79x time increase
-- Medium to large (5x data): 11.97x time increase
+- Small to medium (10x data): 7.9x time increase
+- Medium to large (5x data): 12.45x time increase
 
 Key improvements in this optimization:
 ✅ Regex replaced with String.at/2 for ~15-20% faster name normalization

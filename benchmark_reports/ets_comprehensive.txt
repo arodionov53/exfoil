@@ -26,18 +26,18 @@ Calculating statistics...
 Formatting results...
 
 Name                           ips        average  deviation         median         99th %
-Exfoil function call      854.78 K        1.17 μs   ±326.03%        1.13 μs        1.38 μs
-ETS lookup                254.39 K        3.93 μs   ±169.78%        3.71 μs       15.08 μs
+Exfoil function call      855.65 K        1.17 μs   ±349.67%        1.13 μs        1.38 μs
+ETS lookup                262.75 K        3.81 μs   ±181.12%        3.67 μs        4.46 μs
 
 Comparison: 
-Exfoil function call      854.78 K
-ETS lookup                254.39 K - 3.36x slower +2.76 μs
+Exfoil function call      855.65 K
+ETS lookup                262.75 K - 3.26x slower +2.64 μs
 
 Memory usage statistics:
 
 Name                    Memory usage
 Exfoil function call       0.0313 KB
-ETS lookup                   6.07 KB - 194.25x memory usage +6.04 KB
+ETS lookup                   6.01 KB - 192.25x memory usage +5.98 KB
 
 **All measurements for memory usage were the same**
 
@@ -72,18 +72,18 @@ Calculating statistics...
 Formatting results...
 
 Name                           ips        average  deviation         median         99th %
-Exfoil function call       50.41 K       19.84 μs    ±12.20%       19.29 μs       27.17 μs
-ETS lookup                 17.91 K       55.84 μs     ±5.69%       55.08 μs       63.25 μs
+Exfoil function call       50.52 K       19.79 μs    ±13.00%       19.29 μs       27.71 μs
+ETS lookup                 17.27 K       57.89 μs     ±5.81%       57.08 μs       65.54 μs
 
 Comparison: 
-Exfoil function call       50.41 K
-ETS lookup                 17.91 K - 2.81x slower +36.00 μs
+Exfoil function call       50.52 K
+ETS lookup                 17.27 K - 2.92x slower +38.09 μs
 
 Memory usage statistics:
 
 Name                    Memory usage
 Exfoil function call       0.0313 KB
-ETS lookup                  69.20 KB - 2214.25x memory usage +69.16 KB
+ETS lookup                  68.91 KB - 2205.25x memory usage +68.88 KB
 
 **All measurements for memory usage were the same**
 
@@ -118,18 +118,18 @@ Calculating statistics...
 Formatting results...
 
 Name                           ips        average  deviation         median         99th %
-Exfoil function call        2.22 K      449.81 μs     ±3.33%      443.63 μs      506.91 μs
-ETS lookup                  1.28 K      780.17 μs    ±12.75%      746.73 μs     1269.86 μs
+Exfoil function call        2.22 K      449.74 μs     ±3.50%      443.58 μs      514.83 μs
+ETS lookup                  1.31 K      764.87 μs    ±11.18%      738.79 μs     1201.09 μs
 
 Comparison: 
 Exfoil function call        2.22 K
-ETS lookup                  1.28 K - 1.73x slower +330.36 μs
+ETS lookup                  1.31 K - 1.70x slower +315.13 μs
 
 Memory usage statistics:
 
 Name                    Memory usage
 Exfoil function call       0.0313 KB
-ETS lookup                 701.45 KB - 22446.25x memory usage +701.41 KB
+ETS lookup                 701.09 KB - 22434.75x memory usage +701.05 KB
 
 **All measurements for memory usage were the same**
 
@@ -164,18 +164,18 @@ Calculating statistics...
 Formatting results...
 
 Name                           ips        average  deviation         median         99th %
-Exfoil function call       49.26 K       20.30 μs    ±20.27%          19 μs       33.63 μs
-ETS lookup                 14.88 K       67.22 μs     ±6.78%       66.21 μs       78.49 μs
+Exfoil function call       52.13 K       19.18 μs    ±20.90%       18.71 μs       26.92 μs
+ETS lookup                 14.81 K       67.52 μs     ±6.34%       66.58 μs       78.75 μs
 
 Comparison: 
-Exfoil function call       49.26 K
-ETS lookup                 14.88 K - 3.31x slower +46.92 μs
+Exfoil function call       52.13 K
+ETS lookup                 14.81 K - 3.52x slower +48.34 μs
 
 Memory usage statistics:
 
 Name                    Memory usage
 Exfoil function call       0.0313 KB
-ETS lookup                  85.18 KB - 2725.75x memory usage +85.15 KB
+ETS lookup                  85.34 KB - 2730.75x memory usage +85.30 KB
 
 **All measurements for memory usage were the same**
 
@@ -207,27 +207,45 @@ Excluding outliers: false
 Benchmarking ETS lookup (safe format) ...
 Benchmarking ETS single lookup ...
 Benchmarking Exfoil bang call ...
+Benchmarking Exfoil single call ...
+Calculating statistics...
+Formatting results...
 
-10:41:50.269 [error] Task #PID<0.2305278.0> started from #PID<0.94.0> terminating
-** (UndefinedFunctionError) function SingleBenchmarkTable.get!/1 is undefined or private
-    SingleBenchmarkTable.get!(:key_500)
-    (benchee 1.5.0) lib/benchee/benchmark/collect/time.ex:17: Benchee.Benchmark.Collect.Time.collect/1
-    (benchee 1.5.0) lib/benchee/benchmark/runner.ex:356: Benchee.Benchmark.Runner.collect/3
-    (benchee 1.5.0) lib/benchee/benchmark/repeated_measurement.ex:91: Benchee.Benchmark.RepeatedMeasurement.do_determine_n_times/5
-    (benchee 1.5.0) lib/benchee/benchmark/runner.ex:266: Benchee.Benchmark.Runner.measure_runtimes/4
-    (benchee 1.5.0) lib/benchee/benchmark/runner.ex:140: Benchee.Benchmark.Runner.measure_scenario/2
-    (elixir 1.17.2) lib/task/supervised.ex:101: Task.Supervised.invoke_mfa/2
-    (elixir 1.17.2) lib/task/supervised.ex:36: Task.Supervised.reply/4
-Function: #Function<2.121299024/0 in Benchee.Utility.Parallel.map/2>
-    Args: []
-** (EXIT from #PID<0.94.0>) an exception was raised:
-    ** (UndefinedFunctionError) function SingleBenchmarkTable.get!/1 is undefined or private
-        SingleBenchmarkTable.get!(:key_500)
-        (benchee 1.5.0) lib/benchee/benchmark/collect/time.ex:17: Benchee.Benchmark.Collect.Time.collect/1
-        (benchee 1.5.0) lib/benchee/benchmark/runner.ex:356: Benchee.Benchmark.Runner.collect/3
-        (benchee 1.5.0) lib/benchee/benchmark/repeated_measurement.ex:91: Benchee.Benchmark.RepeatedMeasurement.do_determine_n_times/5
-        (benchee 1.5.0) lib/benchee/benchmark/runner.ex:266: Benchee.Benchmark.Runner.measure_runtimes/4
-        (benchee 1.5.0) lib/benchee/benchmark/runner.ex:140: Benchee.Benchmark.Runner.measure_scenario/2
-        (elixir 1.17.2) lib/task/supervised.ex:101: Task.Supervised.invoke_mfa/2
-        (elixir 1.17.2) lib/task/supervised.ex:36: Task.Supervised.reply/4
+Name                               ips        average  deviation         median         99th %
+Exfoil bang call               27.50 M       36.37 ns   ±199.68%          42 ns          42 ns
+Exfoil single call             26.48 M       37.76 ns   ±111.70%          42 ns          42 ns
+ETS single lookup              17.43 M       57.39 ns   ±454.06%          42 ns          84 ns
+ETS lookup (safe format)       15.36 M       65.12 ns  ±3490.47%          42 ns          84 ns
 
+Comparison: 
+Exfoil bang call               27.50 M
+Exfoil single call             26.48 M - 1.04x slower +1.39 ns
+ETS single lookup              17.43 M - 1.58x slower +21.02 ns
+ETS lookup (safe format)       15.36 M - 1.79x slower +28.75 ns
+
+Memory usage statistics:
+
+Name                        Memory usage
+Exfoil bang call                     0 B
+Exfoil single call                   0 B - 1.00x memory usage +0 B
+ETS single lookup                   72 B - ∞ x memory usage +72 B
+ETS lookup (safe format)            96 B - ∞ x memory usage +96 B
+
+**All measurements for memory usage were the same**
+
+=== Key Findings Summary ===
+1. Exfoil uses direct function calls (compile-time optimized)
+2. ETS uses runtime hash table lookups
+3. Exfoil should be faster for frequently accessed static data
+4. ETS is better for dynamic data that changes frequently
+5. Memory usage: Exfoil stores data in module bytecode
+6. Memory usage: ETS stores data in separate memory space
+
+=== Memory Usage Analysis ===
+Creating ETS table with 5,000 entries...
+ETS table memory: 493712 bytes (482.14 KB)
+Creating Exfoil module with same data...
+Exfoil module created: Elixir.MemoryTestTable
+Module functions: 10
+
+=== Benchmark Complete ===
